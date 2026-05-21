@@ -122,8 +122,28 @@ width:100%;
 }
 </style>
 
+
+<style>
+/* FIX FINAL - variações estilo Eremby, grandes e fáceis de digitar */
+#legacyPlanBox{display:none!important}
+.variations-box{border:1px solid rgba(255,49,49,.65)!important;border-radius:20px!important;padding:22px!important;margin:22px 0!important;background:#101827!important;box-shadow:0 0 22px rgba(255,49,49,.12)!important}
+.variations-box h2{margin:0 0 8px!important;font-size:23px!important}
+.variations-help{color:#94a3b8!important;margin:0 0 18px!important;line-height:1.45!important}
+#variation-container{display:flex!important;flex-direction:column!important;gap:18px!important}
+.plan-row{display:grid!important;grid-template-columns:1.3fr 1fr 1fr!important;gap:12px!important;padding:16px!important;border-radius:18px!important;border:1px solid rgba(148,163,184,.35)!important;background:#0b1220!important;margin:0!important}
+.plan-row .field{display:flex!important;flex-direction:column!important;gap:6px!important}
+.plan-row label{font-size:12px!important;color:#9ca3af!important;font-weight:800!important;text-transform:uppercase!important;letter-spacing:.04em!important}
+.plan-row input{display:block!important;width:100%!important;min-width:0!important;height:48px!important;border-radius:12px!important;border:1px solid #334155!important;background:#1e293b!important;color:#fff!important;padding:0 14px!important;font-size:15px!important;box-sizing:border-box!important}
+.plan-row input:focus{outline:none!important;border-color:#ff3131!important;box-shadow:0 0 0 3px rgba(255,49,49,.15)!important}
+.plan-row .remove-wrap{display:flex!important;align-items:end!important}
+.plan-row .plan-remove{height:48px!important;width:100%!important;border:1px solid #ff3131!important;border-radius:12px!important;background:#23111a!important;color:#ff3131!important;font-size:22px!important;font-weight:900!important;cursor:pointer!important}
+.plan-row .plan-remove:hover{background:#ff3131!important;color:#fff!important}
+#addVariationBtn{display:block!important;width:100%!important;margin-top:18px!important;height:58px!important;border-radius:16px!important;border:2px solid #ff3131!important;background:transparent!important;color:#fff!important;font-size:20px!important;font-weight:900!important;cursor:pointer!important}
+#addVariationBtn:hover{background:rgba(255,49,49,.12)!important}
+@media(max-width:900px){.plan-row{grid-template-columns:1fr!important}}
+</style>
 </head><body><div id="nav"></div><main class="section container"><h1 class="title">PAINEL <span class="glow">ADMIN</span></h1><div id="loginAdmin" class="card" style="max-width:520px;margin:auto"><h2>Entrar como admin</h2><form id="adminLogin" class="form"><input class="input" type="email" name="email" placeholder="Email admin"><input class="input" type="password" name="password" placeholder="Senha"><button class="btn">Entrar</button></form></div><div id="adminArea" style="display:none"><div class="admin-layout"><div class="card"><h2>Cadastrar produto</h2><form id="productForm" class="form"><input type="hidden" name="id"><select name="category" required><option value="android">Android</option><option value="ios">iOS</option><option value="pc">PC</option></select><input class="input" name="name" placeholder="Nome do produto" required><textarea name="description" placeholder="Descrição"></textarea><input class="input" name="badge" placeholder="Selo ex: Mais escolhido"><input class="input" name="old_price" type="number" step="0.01" placeholder="Preço antigo"><input class="input" name="price" type="number" step="0.01" placeholder="Preço principal"><input class="input" name="image_url" placeholder="URL da imagem ou envie arquivo abaixo"><input class="input" name="image_file" type="file" accept="image/*">
-<div class="card" style="padding:14px">
+<div id="legacyPlanBox" class="card" style="padding:14px">
 <h3>Plano do Produto</h3>
 <input class="input" name="plan_name" placeholder="Nome do plano ex: 30 Dias">
 <input class="input" name="plan_days" placeholder="Duração ex: 30 dias">
@@ -134,21 +154,11 @@ width:100%;
 
 <div class="variations-box">
 <h2>Variações / Planos</h2>
-<p style="color:#94a3b8;margin-bottom:18px">Cadastre vários planos igual Eremby: 15 dias, 30 dias, Permanente etc.</p>
-
+<p class="variations-help">Cadastre vários planos no mesmo produto. Exemplo: 15 dias, 30 dias, 90 dias, Permanente. O primeiro plano vira o preço principal do card.</p>
 <div id="variation-container"></div>
-
-<button type="button" id="addVariationBtn" onclick="addVariation()">+ Adicionar plano</button>
+<button type="button" id="addVariationBtn">+ Adicionar plano</button>
 </div>
-<button class="btn">Salvar produto</button><button type="button" class="btn ghost" onclick="document.getElementById('productForm').reset()">Limpar</button></form></div><div class="card"><h2>Produtos cadastrados</h2><div style="overflow:auto"><table class="table"><thead><tr><th>Imagem</th><th>Nome</th><th>Categoria</th><th>Preço</th><th>Ações</th></tr></thead><tbody id="productsTable"></tbody></table></div><h2>Pedidos</h2><div id="orders"></div></div></div></div></main><div id="footer"></div><script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script><script src="config.js"></script><script src="supabase.js"></script><script src="app.js"></script><script>boot('login');let allProducts=[];async function check(){let s=await getSession();if(s&&isAdminEmail(s.user.email)){document.getElementById('loginAdmin').style.display='none';document.getElementById('adminArea').style.display='block';loadAdmin()}else if(s){toast('Seu email não está em ADMIN_EMAILS no config.js')}}check();document.getElementById('adminLogin').onsubmit=async e=>{e.preventDefault();let fd=new FormData(e.target);let {error}=await supabase.auth.signInWithPassword({email:fd.get('email'),password:fd.get('password')});if(error)return toast(error.message);check()};async function loadAdmin(){if(!isConfigured())return toast('Configure o Supabase primeiro.');let {data,error}=await supabase.from('products').select('*').order('created_at',{ascending:false});if(error)return toast(error.message);allProducts=data||[];document.getElementById('productsTable').innerHTML=allProducts.map(p=>`<tr><td><img src="${p.image_url||''}"></td><td>${p.name}</td><td>${p.category}</td><td>${money(p.price)}</td><td><button class="tab" onclick="editProduct('${p.id}')">Editar</button> <button class="tab" onclick="delProduct('${p.id}')">Apagar</button></td></tr>`).join('');let r=await supabase.from('orders').select('*').order('created_at',{ascending:false}).limit(20);document.getElementById('orders').innerHTML=(r.data||[]).map(o=>`<div class="plan"><b>${o.customer_name}</b><span>${o.whatsapp}</span><b>${money(o.total)}</b><small>${o.status}</small></div>`).join('')||'<p>Nenhum pedido.</p>'}document.getElementById('productForm').onsubmit=async e=>{e.preventDefault();let fd=new FormData(e.target);let image=fd.get('image_url');let file=fd.get('image_file');try{if(file&&file.size)image=await uploadImage(file);let plans=[{name:fd.get('plan_name')||'Plano Principal',days:fd.get('plan_days')||'',old_price:Number(fd.get('plan_old_price')||0),price:Number(fd.get('plan_price')||0),discount:fd.get('plan_discount')||''}];let product={category:fd.get('category'),name:fd.get('name'),description:fd.get('description'),badge:fd.get('badge'),old_price:Number(fd.get('old_price')||0),price:Number(fd.get('price')||0),image_url:image,plans,active:true};let id=fd.get('id');let res=id?await supabase.from('products').update(product).eq('id',id):await supabase.from('products').insert(product);if(res.error)return toast(res.error.message);toast('Produto salvo!');e.target.reset();loadAdmin()}catch(err){toast(err.message)}};function editProduct(id){let p=allProducts.find(x=>x.id===id);let f=document.getElementById('productForm');Object.keys(p).forEach(k=>{if(f[k]&&k!=='plans')f[k].value=p[k]??''});f.id.value=p.id;
-if(p.plans&&p.plans[0]){
-f.plan_name.value=p.plans[0].name||'';
-f.plan_days.value=p.plans[0].days||'';
-f.plan_old_price.value=p.plans[0].old_price||'';
-f.plan_price.value=p.plans[0].price||'';
-f.plan_discount.value=p.plans[0].discount||'';
-}
-scrollTo(0,0)}async function delProduct(id){if(!confirm('Apagar produto?'))return;let {error}=await supabase.from('products').delete().eq('id',id);if(error)return toast(error.message);loadAdmin()}</script>
+<button class="btn">Salvar produto</button><button type="button" class="btn ghost" onclick="document.getElementById('productForm').reset()">Limpar</button></form></div><div class="card"><h2>Produtos cadastrados</h2><div style="overflow:auto"><table class="table"><thead><tr><th>Imagem</th><th>Nome</th><th>Categoria</th><th>Preço</th><th>Ações</th></tr></thead><tbody id="productsTable"></tbody></table></div><h2>Pedidos</h2><div id="orders"></div></div></div></div></main><div id="footer"></div><script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script><script src="config.js"></script><script src="supabase.js"></script><script src="app.js"></script><script>boot('login');let allProducts=[];async function check(){let s=await getSession();if(s&&isAdminEmail(s.user.email)){document.getElementById('loginAdmin').style.display='none';document.getElementById('adminArea').style.display='block';loadAdmin()}else if(s){toast('Seu email não está em ADMIN_EMAILS no config.js')}}check();document.getElementById('adminLogin').onsubmit=async e=>{e.preventDefault();let fd=new FormData(e.target);let {error}=await supabase.auth.signInWithPassword({email:fd.get('email'),password:fd.get('password')});if(error)return toast(error.message);check()};async function loadAdmin(){if(!isConfigured())return toast('Configure o Supabase primeiro.');let {data,error}=await supabase.from('products').select('*').order('created_at',{ascending:false});if(error)return toast(error.message);allProducts=data||[];document.getElementById('productsTable').innerHTML=allProducts.map(p=>`<tr><td><img src="${p.image_url||''}"></td><td>${p.name}</td><td>${p.category}</td><td>${money(p.price)}</td><td><button class="tab" onclick="editProduct('${p.id}')">Editar</button> <button class="tab" onclick="delProduct('${p.id}')">Apagar</button></td></tr>`).join('');let r=await supabase.from('orders').select('*').order('created_at',{ascending:false}).limit(20);document.getElementById('orders').innerHTML=(r.data||[]).map(o=>`<div class="plan"><b>${o.customer_name}</b><span>${o.whatsapp}</span><b>${money(o.total)}</b><small>${o.status}</small></div>`).join('')||'<p>Nenhum pedido.</p>'}document.getElementById('productForm').onsubmit=async e=>{e.preventDefault();let fd=new FormData(e.target);let image=fd.get('image_url');let file=fd.get('image_file');try{if(file&&file.size)image=await uploadImage(file);let plans=collectVariations();if(!plans.length)return toast('Adicione pelo menos 1 plano/variação.');let first=plans[0];let product={category:fd.get('category'),name:fd.get('name'),description:fd.get('description'),badge:fd.get('badge'),old_price:Number(first.old_price||0),price:Number(first.price||0),image_url:image,plans,active:true};let id=fd.get('id');let res=id?await supabase.from('products').update(product).eq('id',id):await supabase.from('products').insert(product);if(res.error)return toast(res.error.message);toast('Produto salvo!');e.target.reset();clearVariations();addVariation();loadAdmin()}catch(err){toast(err.message)}};function editProduct(id){let p=allProducts.find(x=>x.id===id);let f=document.getElementById('productForm');Object.keys(p).forEach(k=>{if(f[k]&&k!=='plans')f[k].value=p[k]??''});f.id.value=p.id;clearVariations();if(p.plans&&p.plans.length){p.plans.forEach(pl=>addVariation(pl));}else{addVariation({name:'Plano Principal',days:'',old_price:p.old_price,price:p.price,discount:''});}scrollTo(0,0)}async function delProduct(id){if(!confirm('Apagar produto?'))return;let {error}=await supabase.from('products').delete().eq('id',id);if(error)return toast(error.message);loadAdmin()}</script>
 <script>
 setTimeout(()=>{
 document.querySelectorAll('.plan-row input').forEach((el,i)=>{
@@ -186,4 +196,38 @@ addVariation();
 },500);
 </script>
 
+
+<script>
+function clearVariations(){const wrap=document.getElementById('variation-container');if(wrap)wrap.innerHTML='';}
+function addVariation(data={}){
+  const wrap=document.getElementById('variation-container');
+  if(!wrap)return;
+  const row=document.createElement('div');
+  row.className='plan-row';
+  row.innerHTML=`
+    <div class="field"><label>Nome do plano</label><input class="v-name" placeholder="Ex: 15 Dias / Mensal / Permanente" value="${data.name||''}"></div>
+    <div class="field"><label>Duração</label><input class="v-days" placeholder="Ex: 15 dias / Vitalício" value="${data.days||''}"></div>
+    <div class="field"><label>Preço antigo</label><input class="v-old" type="number" step="0.01" placeholder="Ex: 49.99" value="${data.old_price||''}"></div>
+    <div class="field"><label>Preço atual</label><input class="v-price" type="number" step="0.01" placeholder="Ex: 35.00" value="${data.price||''}"></div>
+    <div class="field"><label>Desconto</label><input class="v-discount" placeholder="Ex: -30%" value="${data.discount||''}"></div>
+    <div class="remove-wrap"><button type="button" class="plan-remove">×</button></div>
+  `;
+  row.querySelector('.plan-remove').onclick=()=>row.remove();
+  wrap.appendChild(row);
+}
+function collectVariations(){
+  return [...document.querySelectorAll('#variation-container .plan-row')].map(row=>({
+    name: row.querySelector('.v-name').value.trim(),
+    days: row.querySelector('.v-days').value.trim(),
+    old_price: Number(row.querySelector('.v-old').value||0),
+    price: Number(row.querySelector('.v-price').value||0),
+    discount: row.querySelector('.v-discount').value.trim()
+  })).filter(p=>p.name || p.price);
+}
+document.addEventListener('DOMContentLoaded',()=>{
+  const btn=document.getElementById('addVariationBtn');
+  if(btn)btn.onclick=()=>addVariation();
+  setTimeout(()=>{const wrap=document.getElementById('variation-container');if(wrap && !wrap.children.length)addVariation();},300);
+});
+</script>
 </body></html>
