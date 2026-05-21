@@ -22,11 +22,152 @@ function onlyDigits(v = '') {
 }
 
 function normalizePixResponse(data) {
-  const qrCode = data?.qrCode || data?.qrcode || data?.pixQrCode || data?.pixQRCode || data?.qr_code || data?.payload || data?.copyPaste || data?.pixCopyPaste || data?.brCode || data?.emv || data?.paymentCode || data?.code || '';
-  const qrCodeImage = data?.qrCodeImage || data?.qr_code_image || data?.qrcode_image || data?.qrCodeBase64 || data?.qr_code_base64 || data?.image || data?.base64 || '';
-  const transactionId = data?.transactionId || data?.transaction_id || data?.id || data?.txid || data?.externalId || data?.external_id || '';
-  const status = data?.status || data?.paymentStatus || 'pending';
-  return { qrCode, qrCodeImage, transactionId, status, raw: data };
+  const allStrings = [];
+
+  function walk(value) {
+    if (value == null) return;
+
+    if (typeof value === 'string') {
+      allStrings.push(value);
+      return;
+    }
+
+    if (typeof value === 'number' || typeof value === 'boolean') {
+      allStrings.push(String(value));
+      return;
+    }
+
+    if (Array.isArray(value)) {
+      value.forEach(walk);
+      return;
+    }
+
+    if (typeof value === 'object') {
+      Object.values(value).forEach(walk);
+    }
+  }
+
+  walk(data);
+
+  function byPaths(obj, paths) {
+    for (const path of paths) {
+      let cur = obj;
+      for (const key of path.split('.')) {
+        if (!cur || typeof cur !== 'object') {
+          cur = undefined;
+          break;
+        }
+        cur = cur[key];
+      }
+      if (cur) return String(cur);
+    }
+    return '';
+  }
+
+  const directPix = byPaths(data, [
+    'pixCode',
+    'copyPaste',
+    'copy_paste',
+    'payload',
+    'pixCopiaECola',
+    'pix_copia_e_cola',
+    'qr_code',
+    'qrcode',
+    'brCode',
+    'br_code',
+    'emv',
+    'paymentCode',
+    'payment_code',
+    'data.pixCode',
+    'data.copyPaste',
+    'data.copy_paste',
+    'data.payload',
+    'data.qr_code',
+    'data.qrcode',
+    'data.brCode',
+    'data.emv',
+    'transaction.pixCode',
+    'transaction.copyPaste',
+    'transaction.payload',
+    'transaction.qr_code',
+    'transaction.qrcode',
+    'transaction.brCode',
+    'payment.pixCode',
+    'payment.copyPaste',
+    'payment.payload',
+    'payment.qr_code',
+    'payment.qrcode'
+  ]);
+
+  const deepPix = allStrings.find(s =>
+    s.includes('000201') ||
+    s.toLowerCase().includes('br.gov.bcb.pix') ||
+    (s.length > 80 && s.includes('BR.GOV.BCB.PIX'))
+  ) || '';
+
+  const directQrImage = byPaths(data, [
+    'qrCodeImage',
+    'qr_code_image',
+    'qrcode_image',
+    'qrCodeBase64',
+    'qr_code_base64',
+    'base64',
+    'image',
+    'data.qrCodeImage',
+    'data.qr_code_image',
+    'data.qrcode_image',
+    'data.qrCodeBase64',
+    'data.qr_code_base64',
+    'data.base64',
+    'data.image',
+    'transaction.qrCodeImage',
+    'transaction.qr_code_image',
+    'transaction.qrCodeBase64',
+    'transaction.qr_code_base64',
+    'payment.qrCodeImage',
+    'payment.qr_code_image',
+    'payment.qrCodeBase64',
+    'payment.qr_code_base64'
+  ]);
+
+  const deepQrImage = allStrings.find(s =>
+    s.startsWith('data:image') ||
+    s.startsWith('iVBOR') ||
+    (s.length > 250 && /^[A-Za-z0-9+/=\r\n]+$/.test(s))
+  ) || '';
+
+  const transactionId = byPaths(data, [
+    'transactionId',
+    'transaction_id',
+    'id',
+    'txid',
+    'externalId',
+    'external_id',
+    'data.transactionId',
+    'data.transaction_id',
+    'data.id',
+    'data.txid',
+    'transaction.id',
+    'transaction.transactionId',
+    'payment.id'
+  ]);
+
+  const status = byPaths(data, [
+    'status',
+    'paymentStatus',
+    'payment_status',
+    'data.status',
+    'transaction.status',
+    'payment.status'
+  ]) || 'pending';
+
+  return {
+    qrCode: directPix || deepPix || '',
+    qrCodeImage: directQrImage || deepQrImage || '',
+    transactionId: transactionId || '',
+    status,
+    raw: data
+  };
 }
 
 async function supabaseInsert(table, payload) {
@@ -126,8 +267,13 @@ exports.handler = async (event) => {
     const pix = normalizePixResponse(mpData);
     await supabasePatchOrder(order.id, {
       external_id: pix.transactionId || order.id,
+      payment_id: pix.transactionId || order.id,
       payment_status: pix.status || 'pending',
-      payment_payload: mpData
+      pix_code: pix.qrCode || '',
+      payment_payload: mpData,
+      qr_code: pix.qrCode || '',
+      pix_qr_code: pix.qrCodeImage || '',
+      qr_code_base64: pix.qrCodeImage || ''
     });
 
     return json(200, {
@@ -135,7 +281,11 @@ exports.handler = async (event) => {
       order_id: order.id,
       total,
       qrCode: pix.qrCode,
+      pixCode: pix.qrCode,
+      copyPaste: pix.qrCode,
+      payload: pix.qrCode,
       qrCodeImage: pix.qrCodeImage,
+      qr_code_base64: pix.qrCodeImage,
       transactionId: pix.transactionId,
       status: pix.status,
       raw: mpData

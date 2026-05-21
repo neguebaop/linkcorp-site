@@ -79,13 +79,37 @@ function copyPix(){
 }
 function showPix(data){
   document.getElementById('pixBox').style.display='block';
-  document.getElementById('pixCode').value=data.qrCode||'';
+
+  const pix =
+    data.qrCode ||
+    data.pixCode ||
+    data.copyPaste ||
+    data.payload ||
+    data.pix_code ||
+    data.payment_payload ||
+    '';
+
+  const qr =
+    data.qrCodeImage ||
+    data.qr_code_base64 ||
+    data.pix_qr_code ||
+    '';
+
+  document.getElementById('pixCode').value = pix || '';
+
   const qrBox=document.getElementById('qrBox');
   qrBox.innerHTML='';
-  if(data.qrCodeImage){
-    const src = String(data.qrCodeImage).startsWith('data:') ? data.qrCodeImage : 'data:image/png;base64,'+data.qrCodeImage;
+
+  if(qr){
+    const src = String(qr).startsWith('data:') ? qr : 'data:image/png;base64,'+qr;
     qrBox.innerHTML=`<img class="qr-img" src="${src}" alt="QR Code Pix">`;
   }
+
+  if(!pix && !qr){
+    qrBox.innerHTML = '<p class="status-pill">Pix gerado, mas a API não retornou QR Code/copia e cola. Veja o pedido no admin ou confira as credenciais da Mistic Pay.</p>';
+    console.log('Resposta completa da Mistic Pay:', data.raw || data);
+  }
+
   currentOrderId=data.order_id;
   document.getElementById('pixStatus').textContent='Pix gerado. Aguardando pagamento...';
   if(statusTimer) clearInterval(statusTimer);
