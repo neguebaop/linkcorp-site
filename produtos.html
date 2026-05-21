@@ -1,199 +1,249 @@
-<!doctype html><html lang="pt-BR"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>Produtos - Link Corp</title><link rel="stylesheet" href="style.css">
-<style>
-.buy-plan-list{display:grid;gap:12px;margin:18px 0}
-.buy-plan-option{border:1px solid rgba(255,49,49,.35);background:#121b2a;border-radius:14px;padding:14px;display:flex;align-items:center;justify-content:space-between;gap:12px;cursor:pointer;transition:.2s}
-.buy-plan-option:hover,.buy-plan-option.active{border-color:#ff3131;box-shadow:0 0 24px rgba(255,49,49,.25);transform:translateY(-2px)}
-.buy-plan-left b{display:block;font-size:18px;color:white}
-.buy-plan-left small{color:#95a0b4}
-.buy-plan-discount{background:#064f36;color:#00ff9d;border-radius:8px;padding:4px 8px;font-weight:900;margin-left:8px}
-.buy-plan-price{text-align:right}
-.buy-plan-price del{display:block;color:#858b9a;font-size:13px}
-.buy-plan-price strong{color:#fff;font-size:24px}
-</style>
+<!doctype html>
+<html lang="pt-BR">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <title>Produtos - Link Corp</title>
+  <link rel="stylesheet" href="style.css">
+  <style>
+    .products-page-wrap{max-width:1280px;margin:0 auto;padding:0 22px 80px}
+    .products-head{text-align:center;margin-bottom:34px}
+    .products-tabs{display:flex;justify-content:center;gap:14px;flex-wrap:wrap;margin:26px 0 42px}
+    .products-tabs .tab{background:#121b2a;border:1px solid #2b3b55;color:#fff;border-radius:12px;padding:15px 28px;font-weight:900;cursor:pointer;transition:.22s}
+    .products-tabs .tab:hover,.products-tabs .tab.active{background:#ff3131;border-color:#ff3131;box-shadow:0 0 25px rgba(255,49,49,.35)}
+    .products-section-title{font-size:26px;color:#fff;text-transform:uppercase;margin:0 0 22px}
+    .products-grid-clean{display:grid;grid-template-columns:repeat(4,minmax(240px,1fr));gap:22px}
+    .product-card-clean{background:#101827;border:1px solid #123cff;border-radius:14px;overflow:hidden;box-shadow:0 0 18px rgba(20,60,255,.18);display:flex;flex-direction:column;min-height:430px;transition:.22s}
+    .product-card-clean:hover{transform:translateY(-6px);box-shadow:0 0 30px rgba(20,60,255,.35),0 0 18px rgba(255,49,49,.2)}
+    .product-card-clean img{width:100%;height:185px;object-fit:cover;display:block;background:#080b12}
+    .product-body-clean{padding:14px 16px;display:flex;flex-direction:column;gap:9px;flex:1}
+    .product-badge-clean{display:inline-block;background:#055f41;color:#00ffa3;font-weight:900;border-radius:7px;padding:5px 8px;font-size:12px;width:max-content}
+    .product-name-clean{font-size:17px;line-height:1.3;color:#fff;text-transform:uppercase;min-height:44px}
+    .product-price-area-clean{margin-top:auto}
+    .product-old-clean{color:#7d8492;text-decoration:line-through;margin-right:8px}
+    .product-discount-clean{background:#064f36;color:#00ff9d;border-radius:7px;padding:5px 8px;font-size:13px;font-weight:900}
+    .product-price-clean{font-size:27px;font-weight:900;color:#fff;margin:4px 0}
+    .product-pay-clean{font-size:13px;color:#fff}
+    .product-buy-clean{margin-top:9px;width:100%;border:0;border-radius:8px;background:#1028ff;color:#fff;font-weight:900;padding:13px;cursor:pointer}
+    .product-buy-clean:hover{filter:brightness(1.15)}
 
+    .buy-modal-box{max-width:1100px;text-align:left}
+    .buy-modal-top{display:grid;grid-template-columns:1fr 1fr;gap:30px;align-items:start}
+    .buy-modal-img{width:100%;border-radius:14px;border:1px solid rgba(255,49,49,.35);max-height:330px;object-fit:cover}
+    .discord-badge{background:#064f36;color:#00ff9d;border-radius:8px;padding:8px 12px;font-weight:900;display:inline-block}
+    .buy-description{line-height:1.55}
+    .buy-plan-list{display:grid;gap:12px;margin:18px 0}
+    .buy-plan-option{border:1px solid rgba(255,49,49,.35);background:#121b2a;border-radius:14px;padding:14px;display:flex;align-items:center;justify-content:space-between;gap:12px;cursor:pointer;transition:.2s}
+    .buy-plan-option:hover,.buy-plan-option.active{border-color:#ff3131;box-shadow:0 0 24px rgba(255,49,49,.25);transform:translateY(-2px)}
+    .buy-plan-left b{display:block;font-size:18px;color:white}
+    .buy-plan-left small{color:#95a0b4}
+    .buy-plan-discount{background:#064f36;color:#00ff9d;border-radius:8px;padding:4px 8px;font-weight:900;margin-left:8px}
+    .buy-plan-price{text-align:right}
+    .buy-plan-price del{display:block;color:#858b9a;font-size:13px}
+    .buy-plan-price strong{color:#fff;font-size:24px}
+    @media(max-width:1100px){.products-grid-clean{grid-template-columns:repeat(3,minmax(220px,1fr))}}
+    @media(max-width:760px){.products-grid-clean{grid-template-columns:repeat(2,minmax(180px,1fr))}.buy-modal-top{grid-template-columns:1fr}.buy-modal-box{max-height:92vh;overflow:auto}}
+    @media(max-width:520px){.products-grid-clean{grid-template-columns:1fr}}
+  </style>
+</head>
+<body>
+<div id="nav"></div>
 
-<style>
-.buy-modal-box{max-width:1100px;text-align:left}.buy-modal-top{display:grid;grid-template-columns:1fr 1fr;gap:30px;align-items:start}.buy-modal-img{width:100%;border-radius:14px;border:1px solid rgba(255,49,49,.35);max-height:330px;object-fit:cover}.discord-badge{background:#064f36;color:#00ff9d;border-radius:8px;padding:8px 12px;font-weight:900}.buy-description{line-height:1.55}.buy-plan-list{display:grid;gap:12px;margin:18px 0}.buy-plan-option{border:1px solid rgba(255,49,49,.35);background:#121b2a;border-radius:14px;padding:14px;display:flex;align-items:center;justify-content:space-between;gap:12px;cursor:pointer;transition:.2s}.buy-plan-option:hover,.buy-plan-option.active{border-color:#ff3131;box-shadow:0 0 24px rgba(255,49,49,.25);transform:translateY(-2px)}.buy-plan-left b{display:block;font-size:18px;color:white}.buy-plan-left small{color:#95a0b4}.buy-plan-discount{background:#064f36;color:#00ff9d;border-radius:8px;padding:4px 8px;font-weight:900;margin-left:8px}.buy-plan-price{text-align:right}.buy-plan-price del{display:block;color:#858b9a;font-size:13px}.buy-plan-price strong{color:#fff;font-size:24px}.buy-stock-card{margin-top:18px}
-@media(max-width:800px){.buy-modal-top{grid-template-columns:1fr}.buy-modal-box{max-height:92vh;overflow:auto}}
-</style>
+<main class="section products-page-wrap">
+  <div class="products-head">
+    <h1 class="title">NOSSOS <span class="glow">PRODUTOS</span></h1>
+    <p class="muted">Escolha a categoria e o produto perfeito</p>
+    <div class="products-tabs">
+      <button class="tab active" data-cat="all">🔥 Todos</button>
+      <button class="tab" data-cat="android">🤖 Android</button>
+      <button class="tab" data-cat="ios">🍎 iOS</button>
+      <button class="tab" data-cat="pc">💻 PC</button>
+    </div>
+  </div>
 
+  <section>
+    <h2 id="productsTitle" class="products-section-title">🔥 TOP MAIS PROCURADOS 🔥</h2>
+    <div id="productsGridClean" class="products-grid-clean"></div>
+  </section>
 
+  <div class="cta" style="margin-top:55px">
+    <h2>TEM DÚVIDAS?</h2>
+    <p class="muted">Nossa equipe está disponível para ajudar você</p>
+    <button class="btn" onclick="window.open(DISCORD_URL,'_blank')">ENTRAR NO DISCORD</button>
+  </div>
+</main>
 
+<div id="footer"></div>
 
-<style>
-/* FIX LIMPO PRODUTOS */
-#productsClean{max-width:1280px;margin:0 auto;padding:0 22px 80px}
-.clean-title{font-size:26px;text-transform:uppercase;color:#fff;margin:36px 0 18px}
-.clean-grid{display:grid;grid-template-columns:repeat(4,minmax(230px,1fr));gap:22px}
-.clean-card{background:#101827;border:1px solid #123cff;border-radius:14px;overflow:hidden;box-shadow:0 0 18px rgba(20,60,255,.18);display:flex;flex-direction:column;min-height:430px;transition:.22s}
-.clean-card:hover{transform:translateY(-6px);box-shadow:0 0 30px rgba(20,60,255,.35),0 0 18px rgba(255,49,49,.2)}
-.clean-card img{width:100%;height:185px;object-fit:cover;display:block}
-.clean-body{padding:14px 16px;display:flex;flex-direction:column;gap:9px;flex:1}
-.clean-badge{display:inline-block;background:#055f41;color:#00ffa3;font-weight:900;border-radius:7px;padding:5px 8px;font-size:12px;width:max-content}
-.clean-name{font-size:17px;line-height:1.3;color:#fff;text-transform:uppercase;min-height:44px}
-.clean-price-area{margin-top:auto}
-.clean-old{color:#7d8492;text-decoration:line-through;margin-right:8px}
-.clean-discount{background:#064f36;color:#00ff9d;border-radius:7px;padding:5px 8px;font-size:13px;font-weight:900}
-.clean-price{font-size:27px;font-weight:900;color:#fff;margin:4px 0}
-.clean-pay{font-size:13px;color:#fff}
-.clean-buy{margin-top:9px;width:100%;border:0;border-radius:8px;background:#1028ff;color:#fff;font-weight:900;padding:13px;cursor:pointer}
-.clean-buy:hover{filter:brightness(1.15)}
-@media(max-width:1100px){.clean-grid{grid-template-columns:repeat(3,minmax(220px,1fr))}}
-@media(max-width:760px){.clean-grid{grid-template-columns:repeat(2,minmax(180px,1fr))}}
-@media(max-width:520px){.clean-grid{grid-template-columns:1fr}}
-</style>
-
-</head><body><div id="nav"></div><main class="section container"><h1 class="title">NOSSOS <span class="glow">PRODUTOS</span></h1><p class="muted">Escolha a categoria e o produto perfeito</p><div class="tabs"><button class="tab active" data-cat="all">🔥 Todos</button><button class="tab" data-cat="android">🤖 Android</button><button class="tab" data-cat="ios">🍎 iOS</button><button class="tab" data-cat="pc">💻 PC</button></div><h2>🔥 TOP MAIS PROCURADOS 🔥</h2><div id="grid" class="products-grid"></div><h2 style="margin-top:55px">📦 PLANOS COMPLETOS</h2><div id="wide"></div><div class="cta"><h2>TEM DÚVIDAS?</h2><p class="muted">Nossa equipe está disponível para ajudar você</p><button class="btn" onclick="window.open(DISCORD_URL,'_blank')">ENTRAR NO DISCORD</button></div></main><div id="footer"></div><script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script><script src="config.js"></script><script src="supabase.js"></script><script src="app.js"></script><script>boot('produtos');let products=[];async function load(){products=await fetchProducts();window.LINKCORP_PRODUCTS=products;render('all')}function render(cat){document.getElementById('grid').innerHTML=products.filter(p=>cat==='all'||p.category===cat).map(productCard).join('')||'<p>Nenhum produto cadastrado nessa categoria.</p>';document.getElementById('wide').innerHTML=products.filter(p=>cat==='all'||p.category===cat).map(productWide).join('')}document.querySelectorAll('.tab').forEach(b=>b.onclick=()=>{document.querySelectorAll('.tab').forEach(x=>x.classList.remove('active'));b.classList.add('active');render(b.dataset.cat)});load();</script>
-
-
-
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<script src="config.js"></script>
+<script src="supabase.js"></script>
+<script src="app.js"></script>
 <script>
-(function(){
-  const money = v => Number(v||0).toLocaleString('pt-BR',{style:'currency',currency:'BRL'});
-  const catLabel = c => ({android:'Android',ios:'iOS',pc:'PC'}[(c||'').toLowerCase()] || c || 'Outros');
-  const catEmoji = c => ({android:'🤖',ios:'🍎',pc:'💻'}[(c||'').toLowerCase()] || '📦');
+boot('produtos');
 
-  function firstPlan(p){
-    return Array.isArray(p.plans) && p.plans.length ? p.plans[0] : {name:'Principal', price:p.price, old_price:p.old_price, discount:p.discount||''};
-  }
+const money = v => Number(v || 0).toLocaleString('pt-BR',{style:'currency',currency:'BRL'});
+const catName = c => ({android:'Android',ios:'iOS',pc:'PC'}[(c||'').toLowerCase()] || c || 'Outros');
+const catEmoji = c => ({android:'🤖',ios:'🍎',pc:'💻'}[(c||'').toLowerCase()] || '📦');
+let products = [];
+let activeCat = 'all';
 
-  window.renderAllProductsNoLimit = function(products){
-    products = Array.isArray(products) ? products : [];
-    const root = document.getElementById('products') || document.getElementById('productGrid') || document.getElementById('productsGrid') || document.querySelector('.products-grid');
-    if(!root) return;
-    root.innerHTML = '';
-
-    const filter = (document.querySelector('.cat-btn.active')?.dataset?.cat || document.querySelector('[data-filter].active')?.dataset?.filter || 'all').toLowerCase();
-    const list = filter === 'all' ? products : products.filter(p => (p.category||'').toLowerCase() === filter);
-
-    const cats = ['android','ios','pc'];
-    const orderedCats = filter === 'all' ? cats : [filter];
-
-    orderedCats.forEach(cat=>{
-      const arr = list.filter(p => (p.category||'').toLowerCase() === cat);
-      if(!arr.length) return;
-      const sec = document.createElement('section');
-      sec.className = 'category-products-section';
-      sec.innerHTML = `<h2 class="product-section-title">${catEmoji(cat)} ${catLabel(cat)}</h2><div class="products-grid"></div>`;
-      const grid = sec.querySelector('.products-grid');
-      arr.forEach(p=>{
-        const plan = firstPlan(p);
-        const card = document.createElement('div');
-        card.className = 'product-card card hover-lift';
-        card.innerHTML = `
-          <img src="${p.image_url || 'assets/logo.png'}" alt="${p.name||''}" style="width:100%;height:190px;object-fit:cover;border-radius:14px">
-          <p><span class="badge">${catLabel(p.category)}</span></p>
-          <h3>🛒 ${p.name||'Produto'}</h3>
-          <p class="subtitle">${(p.description||'').slice(0,90)}</p>
-          <p>${plan.old_price ? `<del>${money(plan.old_price)}</del>` : ''} ${plan.discount ? `<span class="badge">${plan.discount}</span>` : ''}</p>
-          <h2 style="color:#fff">${money(plan.price || p.price)}</h2>
-          <p>À vista no PIX</p>
-          <button class="btn buy-btn" style="width:100%">Comprar</button>
-        `;
-        card.querySelector('.buy-btn').onclick = ()=> {
-          if(typeof openBuyModal === 'function') openBuyModal(p);
-          else if(typeof addCart === 'function') addCart(p);
-        };
-        grid.appendChild(card);
-      });
-      root.appendChild(sec);
-    });
-
-    if(!root.children.length){
-      root.innerHTML = '<p class="subtitle">Nenhum produto nessa categoria.</p>';
-    }
+function firstPlan(p){
+  return Array.isArray(p.plans) && p.plans.length ? p.plans[0] : {
+    name:'Principal',
+    price:p.price,
+    old_price:p.old_price,
+    discount:p.discount || ''
   };
+}
 
-  // Recarrega produtos sem limite direto do Supabase depois que a página abrir.
-  async function reloadNoLimit(){
-    try{
-      if(!window.supabase) return;
-      const {data,error}=await supabase.from('products').select('*').eq('active',true).order('created_at',{ascending:false}).limit(1000);
-      if(error) return console.error(error);
-      window.__LINK_PRODUCTS__ = data || [];
-      renderAllProductsNoLimit(window.__LINK_PRODUCTS__);
-    }catch(e){console.error(e)}
+function productCard(p){
+  const plan = firstPlan(p);
+  const card = document.createElement('div');
+  card.className = 'product-card-clean';
+  card.innerHTML = `
+    <img src="${p.image_url || 'assets/logo.png'}" alt="${p.name || ''}">
+    <div class="product-body-clean">
+      <span class="product-badge-clean">${catName(p.category)}</span>
+      <div class="product-name-clean">🛒 ${p.name || 'Produto'}</div>
+      <div class="product-price-area-clean">
+        ${plan.old_price ? `<span class="product-old-clean">${money(plan.old_price)}</span>` : ''}
+        ${plan.discount ? `<span class="product-discount-clean">${plan.discount}</span>` : ''}
+        <div class="product-price-clean">${money(plan.price || p.price)}</div>
+        <div class="product-pay-clean">À vista no PIX</div>
+        <button class="product-buy-clean">Comprar</button>
+      </div>
+    </div>
+  `;
+  card.querySelector('button').onclick = () => openBuyModal(p);
+  return card;
+}
+
+function renderProducts(){
+  const grid = document.getElementById('productsGridClean');
+  const title = document.getElementById('productsTitle');
+
+  const list = activeCat === 'all'
+    ? products
+    : products.filter(p => (p.category || '').toLowerCase() === activeCat);
+
+  title.textContent = activeCat === 'all'
+    ? '🔥 TOP MAIS PROCURADOS 🔥'
+    : `${catEmoji(activeCat)} ${catName(activeCat)}`;
+
+  grid.innerHTML = '';
+  if(!list.length){
+    grid.innerHTML = '<p class="muted">Nenhum produto nessa categoria.</p>';
+    return;
+  }
+  list.forEach(p => grid.appendChild(productCard(p)));
+}
+
+async function loadProducts(){
+  products = await fetchProducts();
+  products = Array.isArray(products) ? products : [];
+  renderProducts();
+}
+
+document.querySelectorAll('.tab').forEach(btn => {
+  btn.onclick = () => {
+    document.querySelectorAll('.tab').forEach(x => x.classList.remove('active'));
+    btn.classList.add('active');
+    activeCat = btn.dataset.cat;
+    renderProducts();
+  };
+});
+
+window.openBuyModal = function(product){
+  const plans = Array.isArray(product.plans) && product.plans.length ? product.plans : [firstPlan(product)];
+  let currentIndex = 0;
+
+  let modal = document.getElementById('buyModal');
+  if(!modal){
+    modal = document.createElement('div');
+    modal.id = 'buyModal';
+    modal.className = 'modal';
+    document.body.appendChild(modal);
   }
 
-  document.addEventListener('DOMContentLoaded', ()=>{
-    setTimeout(reloadNoLimit, 600);
-    document.querySelectorAll('.cat-btn,[data-cat],[data-filter]').forEach(btn=>{
-      btn.addEventListener('click',()=>setTimeout(()=>renderAllProductsNoLimit(window.__LINK_PRODUCTS__||[]),50));
-    });
-  });
-})();
-</script>
+  modal.className = 'modal show';
 
-
-<script>
-(function(){
- const money=v=>Number(v||0).toLocaleString('pt-BR',{style:'currency',currency:'BRL'});
- const catName=c=>({android:'Android',ios:'iOS',pc:'PC'}[(c||'').toLowerCase()]||c||'Outros');
- const catEmoji=c=>({android:'🤖',ios:'🍎',pc:'💻'}[(c||'').toLowerCase()]||'📦');
- const firstPlan=p=>Array.isArray(p.plans)&&p.plans.length?p.plans[0]:{price:p.price,old_price:p.old_price,discount:p.discount||''};
-
- function getFilter(){
-   const active=document.querySelector('.cat-btn.active')||document.querySelector('[data-cat].active')||document.querySelector('[data-filter].active');
-   return (active?.dataset?.cat||active?.dataset?.filter||'all').toLowerCase();
- }
-
- function makeCard(p){
-   const pl=firstPlan(p);
-   const el=document.createElement('div');
-   el.className='clean-card';
-   el.innerHTML=`
-    <img src="${p.image_url||'assets/logo.png'}" alt="${p.name||''}">
-    <div class="clean-body">
-      <span class="clean-badge">${catName(p.category)}</span>
-      <div class="clean-name">🛒 ${p.name||'Produto'}</div>
-      <div class="clean-price-area">
-        ${pl.old_price?`<span class="clean-old">${money(pl.old_price)}</span>`:''}
-        ${pl.discount?`<span class="clean-discount">${pl.discount}</span>`:''}
-        <div class="clean-price">${money(pl.price||p.price)}</div>
-        <div class="clean-pay">À vista no PIX</div>
-        <button class="clean-buy">Comprar</button>
+  function planHtml(){
+    return plans.map((p,i)=>`
+      <div class="buy-plan-option ${i===currentIndex?'active':''}" data-i="${i}">
+        <div class="buy-plan-left">
+          <b>${p.name || 'Plano'} ${p.discount ? `<span class="buy-plan-discount">${p.discount}</span>` : ''}</b>
+          <small>${p.days || ''}</small>
+        </div>
+        <div class="buy-plan-price">
+          ${p.old_price ? `<del>${money(p.old_price)}</del>` : ''}
+          <strong>${money(p.price || product.price)}</strong>
+        </div>
       </div>
-    </div>`;
-   el.querySelector('.clean-buy').onclick=()=>{ if(typeof openBuyModal==='function') openBuyModal(p); };
-   return el;
- }
+    `).join('');
+  }
 
- window.renderCleanProducts=function(products){
-   products=Array.isArray(products)?products:[];
-   let old=document.getElementById('products')||document.getElementById('productGrid')||document.getElementById('productsGrid')||document.querySelector('.products-grid');
-   if(!old)return;
-   let root=document.getElementById('productsClean');
-   if(!root){
-     root=document.createElement('div');
-     root.id='productsClean';
-     old.parentNode.insertBefore(root, old);
-     old.style.display='none';
-   }
-   root.innerHTML='';
-   const filter=getFilter();
-   const show=filter==='all'?products:products.filter(p=>(p.category||'').toLowerCase()===filter);
-   const sec=document.createElement('section');
-   sec.innerHTML=`<h2 class="clean-title">🔥 ${filter==='all'?'Top mais procurados':catEmoji(filter)+' '+catName(filter)} 🔥</h2><div class="clean-grid"></div>`;
-   const grid=sec.querySelector('.clean-grid');
-   show.forEach(p=>grid.appendChild(makeCard(p)));
-   if(!show.length) grid.innerHTML='<p class="subtitle">Nenhum produto nessa categoria.</p>';
-   root.appendChild(sec);
- };
+  function renderModal(){
+    const p = plans[currentIndex];
+    modal.innerHTML = `
+      <div class="modal-box buy-modal-box">
+        <button class="close" onclick="document.getElementById('buyModal').classList.remove('show')">×</button>
+        <div class="buy-modal-top">
+          <div><img class="buy-modal-img" src="${product.image_url || 'assets/logo.png'}"></div>
+          <div>
+            <p class="muted">Início › Produtos › ${catName(product.category)}</p>
+            <h2>${product.name || 'Produto'}</h2>
+            <p>
+              ${p.old_price ? `<del>${money(p.old_price)}</del>` : ''}
+              ${p.discount ? `<b style="color:#00ff9d;margin-left:8px">${p.discount}</b>` : ''}
+              <strong style="font-size:32px;margin-left:12px">${money(p.price || product.price)}</strong>
+            </p>
+            <p><span class="discord-badge">⚡ Entrega manual via Discord</span></p>
+            <p class="buy-description">${product.description || ''}</p>
+          </div>
+        </div>
+        <hr style="margin:24px 0">
+        <h3>Escolha seu plano</h3>
+        <div class="buy-plan-list">${planHtml()}</div>
+        <div class="card" style="margin-top:18px">
+          <h3>Estoque disponível</h3>
+          <div style="font-size:28px;margin:10px 0">${money(p.price || product.price)}</div>
+          <p>${p.days || p.name || 'Plano'} disponível</p>
+          <button class="btn" id="buyNowBtn" style="width:100%">Comprar agora</button>
+          <button class="btn ghost" onclick="document.getElementById('buyModal').classList.remove('show')" style="width:100%;margin-top:10px">Continuar vendo produtos</button>
+        </div>
+      </div>
+    `;
 
- async function load(){
-   if(!window.supabase)return;
-   const {data,error}=await supabase.from('products').select('*').eq('active',true).order('created_at',{ascending:false}).limit(1000);
-   if(error){console.error(error);return}
-   window.__LINK_PRODUCTS__=data||[];
-   renderCleanProducts(window.__LINK_PRODUCTS__);
- }
- document.addEventListener('DOMContentLoaded',()=>{
-   setTimeout(load,800);
-   document.querySelectorAll('.cat-btn,[data-cat],[data-filter]').forEach(btn=>{
-     btn.addEventListener('click',()=>setTimeout(()=>renderCleanProducts(window.__LINK_PRODUCTS__||[]),80));
-   });
- });
-})();
+    modal.querySelectorAll('.buy-plan-option').forEach(el => {
+      el.onclick = () => {
+        currentIndex = Number(el.dataset.i);
+        renderModal();
+      };
+    });
+
+    document.getElementById('buyNowBtn').onclick = () => {
+      const chosen = plans[currentIndex];
+      const cart = JSON.parse(localStorage.getItem('linkcorp_cart') || '[]');
+      cart.push({
+        product_id: product.id,
+        name: product.name,
+        image_url: product.image_url,
+        category: product.category,
+        plan: chosen.name || 'Plano',
+        days: chosen.days || '',
+        price: Number(chosen.price || product.price || 0),
+        qty: 1
+      });
+      localStorage.setItem('linkcorp_cart', JSON.stringify(cart));
+      location.href = 'carrinho.html';
+    };
+  }
+
+  renderModal();
+};
+
+loadProducts();
 </script>
-
-</body></html>
+</body>
+</html>

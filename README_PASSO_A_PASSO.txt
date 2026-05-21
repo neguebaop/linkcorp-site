@@ -68,3 +68,50 @@ PASSO A PASSO - LINK CORP COM SUPABASE REAL
 
 OBSERVAÇÃO IMPORTANTE
 Se você abrir o arquivo direto pelo computador, pode funcionar estranho em alguns navegadores. O ideal é usar Live Server no VS Code ou subir direto no Netlify.
+
+====================================================
+PIX AUTOMÁTICO MISTIC PAY + NETLIFY FUNCTIONS
+====================================================
+
+1) SUPABASE
+- Abra Supabase > SQL Editor
+- Rode o arquivo: sql/misticpay_backend_update.sql
+
+2) NETLIFY ENVIRONMENT VARIABLES
+No Netlify do seu site:
+- Site configuration > Environment variables
+- Add variable:
+
+SUPABASE_URL = sua URL do Supabase
+SUPABASE_SERVICE_ROLE_KEY = sua service_role key do Supabase
+MISTIC_CLIENT_ID = seu Client ID da Mistic Pay
+MISTIC_CLIENT_SECRET = seu Client Secret da Mistic Pay
+MISTIC_API_BASE = https://api.misticpay.com/api
+
+IMPORTANTE:
+- NÃO coloque Client Secret no config.js
+- NÃO coloque Service Role Key no config.js
+- Essas chaves ficam somente no Netlify Environment Variables.
+
+3) WEBHOOK MISTIC PAY
+Na Mistic Pay, configure o webhook para:
+https://SEU-SITE.netlify.app/.netlify/functions/mistic-webhook
+
+Exemplo:
+https://linkcorp.netlify.app/.netlify/functions/mistic-webhook
+
+4) DEPLOY
+- Suba esta pasta completa no GitHub
+- O Netlify vai reconhecer o arquivo netlify.toml
+- Faça deploy
+
+5) TESTE
+- Adicione produto ao carrinho
+- Vá em carrinho.html
+- Preencha nome, CPF, Discord
+- Clique em Gerar Pix automático
+- Após pagar, o webhook muda o pedido para status pago.
+
+OBS:
+Se o Pix não gerar, veja o erro no Netlify:
+Site > Functions > create-pix > Logs

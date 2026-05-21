@@ -1,1 +1,144 @@
-<!doctype html><html lang="pt-BR"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>Carrinho - Link Corp</title><link rel="stylesheet" href="style.css"><style>.checkout-grid{display:grid;grid-template-columns:1fr 1fr;gap:24px}.cart-item{display:grid;grid-template-columns:80px 1fr auto;gap:14px;align-items:center;border:1px solid rgba(255,49,49,.25);background:#111a29;border-radius:14px;padding:12px;margin-bottom:12px}.cart-item img{width:80px;height:62px;object-fit:cover;border-radius:10px}.cart-item small{color:#99a3b5}.cart-remove{background:transparent;border:1px solid rgba(255,49,49,.55);color:#ff3131;border-radius:10px;padding:8px;cursor:pointer}.pix-key-row{display:flex;gap:10px}.discord-help{background:#111a29;border:1px solid rgba(88,101,242,.7);border-radius:14px;padding:14px;margin-top:12px}@media(max-width:850px){.checkout-grid{grid-template-columns:1fr}.cart-item{grid-template-columns:60px 1fr}.cart-item img{width:60px}.cart-item .price-block{grid-column:1/-1}}</style></head><body><div id="nav"></div><main class="section container"><h1 class="title">FINALIZAR <span class="glow">PEDIDO</span></h1><div class="checkout-grid"><div class="card"><h2>Seu carrinho</h2><div id="cartFull"></div><h2>Total: <span id="total" class="glow">R$ 0,00</span></h2><button class="btn ghost" onclick="clearCart()">Limpar carrinho</button></div><div class="card"><h2>Dados para entrega manual</h2><form id="orderForm" class="form"><input class="input" name="customer_name" placeholder="Seu nome" required><input class="input" name="discord" placeholder="Seu usuário do Discord" required><input class="input" name="email" placeholder="Email opcional"><textarea name="notes" placeholder="Nick, ID ou observação do pedido"></textarea><button class="btn">Gerar pedido e Pix</button></form><div id="pixBox" style="display:none;margin-top:20px" class="card"><h2>Pagamento PIX</h2><p>Chave Pix:</p><div class="pix-key-row"><input class="input" id="pixKey" readonly><button class="btn" type="button" onclick="navigator.clipboard.writeText(cfg.PIX_KEY);toast('Pix copiado!')">Copiar</button></div><div class="discord-help"><h3>📩 Enviar comprovante</h3><p>Depois de pagar, entre no nosso Discord e envie o comprovante com seu nome e usuário.</p><a class="btn" href="https://discord.gg/TutAbaF7q" target="_blank">Entrar no Discord</a></div></div></div></div></main><div id="footer"></div><script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script><script src="config.js"></script><script src="supabase.js"></script><script src="app.js"></script><script>boot('produtos');function getCart(){return JSON.parse(localStorage.getItem('cart')||'[]')}function setCart(c){localStorage.setItem('cart',JSON.stringify(c))}function clearCart(){localStorage.removeItem('cart');renderCart()}function removeItem(i){let c=getCart();c.splice(i,1);setCart(c);renderCart()}function renderCart(){let c=getCart();document.getElementById('cartFull').innerHTML=c.length?c.map((i,k)=>`<div class="cart-item"><img src="${i.image_url||'assets/logo.png'}"><div><b>${i.name}</b><br><small>${i.plan||''} ${i.days?`• ${i.days}`:''}</small></div><div class="price-block"><b>${money(i.price)}</b><br><button class="cart-remove" onclick="removeItem(${k})">Remover</button></div></div>`).join(''):'<p>Carrinho vazio.</p>';document.getElementById('total').textContent=money(c.reduce((s,i)=>s+Number(i.price||0),0))}renderCart();document.getElementById('orderForm').onsubmit=async e=>{e.preventDefault();let cart=getCart();if(!cart.length)return toast('Seu carrinho está vazio');let fd=new FormData(e.target);let order={customer_name:fd.get('customer_name'),whatsapp:fd.get('discord'),email:fd.get('email'),notes:`Discord: ${fd.get('discord')} | ${fd.get('notes')||''}`,items:cart,total:cart.reduce((s,i)=>s+Number(i.price||0),0),status:'pendente'};if(isConfigured()){let {error}=await supabase.from('orders').insert(order);if(error)return toast('Erro: '+error.message)}document.getElementById('pixBox').style.display='block';document.getElementById('pixKey').value=cfg.PIX_KEY;toast('Pedido gerado! Agora pague no Pix e envie o comprovante no Discord.');}</script></body></html>
+<!doctype html>
+<html lang="pt-BR">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <title>Carrinho - Link Corp</title>
+  <link rel="stylesheet" href="style.css">
+  <style>
+    .checkout-grid{display:grid;grid-template-columns:1fr 1fr;gap:24px}.cart-item{display:grid;grid-template-columns:90px 1fr auto;gap:14px;align-items:center;border:1px solid rgba(255,49,49,.25);background:#111a29;border-radius:14px;padding:12px;margin-bottom:12px}.cart-item img{width:90px;height:66px;object-fit:cover;border-radius:10px}.cart-item small{color:#99a3b5}.cart-remove{background:transparent;border:1px solid rgba(255,49,49,.55);color:#ff3131;border-radius:10px;padding:8px;cursor:pointer}.pix-auto-box{display:none;margin-top:20px}.pix-copy{display:flex;gap:10px}.pix-copy textarea{min-height:95px}.qr-img{max-width:260px;width:100%;border-radius:14px;background:#fff;padding:10px;margin:12px 0}.status-pill{display:inline-block;border:1px solid rgba(255,49,49,.45);border-radius:999px;padding:8px 12px;margin:10px 0;background:#111a29}.discord-help{background:#111a29;border:1px solid rgba(88,101,242,.7);border-radius:14px;padding:14px;margin-top:12px}@media(max-width:850px){.checkout-grid{grid-template-columns:1fr}.cart-item{grid-template-columns:70px 1fr}.cart-item img{width:70px}.cart-item .price-block{grid-column:1/-1}.pix-copy{flex-direction:column}}
+  </style>
+</head>
+<body>
+<div id="nav"></div>
+<main class="section container">
+  <h1 class="title">FINALIZAR <span class="glow">PEDIDO</span></h1>
+  <div class="checkout-grid">
+    <div class="card">
+      <h2>Seu carrinho</h2>
+      <div id="cartFull"></div>
+      <h2>Total: <span id="total" class="glow">R$ 0,00</span></h2>
+      <button class="btn ghost" onclick="clearCart()">Limpar carrinho</button>
+    </div>
+    <div class="card">
+      <h2>Pix automático Mistic Pay</h2>
+      <p class="muted">Preencha seus dados para gerar o Pix automático. O pagamento será confirmado pelo webhook.</p>
+      <form id="orderForm" class="form">
+        <input class="input" name="customer_name" placeholder="Seu nome completo" required>
+        <input class="input" name="cpf" placeholder="CPF somente números" minlength="11" required>
+        <input class="input" name="discord" placeholder="Seu usuário do Discord" required>
+        <input class="input" name="email" type="email" placeholder="Email opcional">
+        <textarea name="notes" placeholder="Nick, ID ou observação do pedido"></textarea>
+        <button class="btn" id="generatePixBtn">Gerar Pix automático</button>
+      </form>
+
+      <div id="pixBox" class="card pix-auto-box">
+        <h2>Pagamento PIX</h2>
+        <div id="pixStatus" class="status-pill">Aguardando pagamento...</div>
+        <div id="qrBox"></div>
+        <p>Copia e cola Pix:</p>
+        <div class="pix-copy">
+          <textarea class="input" id="pixCode" readonly></textarea>
+          <button class="btn" type="button" onclick="copyPix()">Copiar</button>
+        </div>
+        <div class="discord-help">
+          <h3>📩 Comprovante e suporte</h3>
+          <p>Se precisar de ajuda, entre no nosso Discord.</p>
+          <a class="btn" href="https://discord.gg/TutAbaF7q" target="_blank">Entrar no Discord</a>
+        </div>
+      </div>
+    </div>
+  </div>
+</main>
+<div id="footer"></div>
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<script src="config.js"></script>
+<script src="supabase.js"></script>
+<script src="app.js"></script>
+<script>
+boot('produtos');
+let currentOrderId = null;
+let statusTimer = null;
+
+function getCart(){
+  let c = JSON.parse(localStorage.getItem('linkcorp_cart') || '[]');
+  if(!c.length) c = JSON.parse(localStorage.getItem('cart') || '[]');
+  return c;
+}
+function setCart(c){localStorage.setItem('linkcorp_cart',JSON.stringify(c));localStorage.setItem('cart',JSON.stringify(c))}
+function clearCart(){localStorage.removeItem('linkcorp_cart');localStorage.removeItem('cart');renderCart()}
+function removeItem(i){let c=getCart();c.splice(i,1);setCart(c);renderCart()}
+function renderCart(){
+  let c=getCart();
+  document.getElementById('cartFull').innerHTML=c.length?c.map((i,k)=>`<div class="cart-item"><img src="${i.image_url||'assets/logo.png'}"><div><b>${i.name}</b><br><small>${i.plan||''} ${i.days?`• ${i.days}`:''}</small></div><div class="price-block"><b>${money(i.price)}</b><br><button class="cart-remove" onclick="removeItem(${k})">Remover</button></div></div>`).join(''):'<p>Carrinho vazio.</p>';
+  document.getElementById('total').textContent=money(c.reduce((s,i)=>s+Number(i.price||0)*Number(i.qty||1),0));
+}
+function copyPix(){
+  navigator.clipboard.writeText(document.getElementById('pixCode').value || '');
+  toast('Pix copiado!');
+}
+function showPix(data){
+  document.getElementById('pixBox').style.display='block';
+  document.getElementById('pixCode').value=data.qrCode||'';
+  const qrBox=document.getElementById('qrBox');
+  qrBox.innerHTML='';
+  if(data.qrCodeImage){
+    const src = String(data.qrCodeImage).startsWith('data:') ? data.qrCodeImage : 'data:image/png;base64,'+data.qrCodeImage;
+    qrBox.innerHTML=`<img class="qr-img" src="${src}" alt="QR Code Pix">`;
+  }
+  currentOrderId=data.order_id;
+  document.getElementById('pixStatus').textContent='Pix gerado. Aguardando pagamento...';
+  if(statusTimer) clearInterval(statusTimer);
+  statusTimer=setInterval(checkPayment,5000);
+}
+async function checkPayment(){
+  if(!currentOrderId)return;
+  try{
+    const r=await fetch('/.netlify/functions/check-payment?order_id='+encodeURIComponent(currentOrderId));
+    const data=await r.json();
+    const order=data.order;
+    if(order && (order.status==='pago' || order.payment_status==='paid' || order.payment_status==='approved')){
+      document.getElementById('pixStatus').textContent='Pagamento aprovado! Pedido confirmado.';
+      clearInterval(statusTimer);
+      clearCart();
+    }
+  }catch(e){console.error(e)}
+}
+renderCart();
+
+document.getElementById('orderForm').onsubmit=async e=>{
+  e.preventDefault();
+  let cart=getCart();
+  if(!cart.length)return toast('Seu carrinho está vazio');
+  let fd=new FormData(e.target);
+  const total=cart.reduce((s,i)=>s+Number(i.price||0)*Number(i.qty||1),0);
+  const btn=document.getElementById('generatePixBtn');
+  btn.disabled=true;btn.textContent='Gerando Pix...';
+  try{
+    const res=await fetch('/.netlify/functions/create-pix',{
+      method:'POST',
+      headers:{'Content-Type':'application/json'},
+      body:JSON.stringify({
+        customer_name:fd.get('customer_name'),
+        cpf:fd.get('cpf'),
+        discord:fd.get('discord'),
+        email:fd.get('email'),
+        notes:fd.get('notes'),
+        items:cart,
+        total
+      })
+    });
+    const data=await res.json();
+    if(!res.ok || data.error) throw new Error(data.error || 'Erro ao gerar Pix');
+    showPix(data);
+    toast('Pix gerado automaticamente!');
+  }catch(err){
+    toast(err.message);
+    console.error(err);
+  }finally{
+    btn.disabled=false;btn.textContent='Gerar Pix automático';
+  }
+};
+</script>
+</body>
+</html>
