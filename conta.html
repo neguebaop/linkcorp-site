@@ -69,5 +69,24 @@ boot('conta');
   document.getElementById('welcomeName').textContent=name.toUpperCase();
 })();
 </script>
+
+<script>
+document.addEventListener('DOMContentLoaded',()=>{
+  const main=document.querySelector('main .container')||document.querySelector('main')||document.body;
+  const cards=[...document.querySelectorAll('.card')];
+  if(cards.length>=2){
+    const wrap=document.createElement('div');
+    wrap.className='account-shell';
+    const side=cards[0], content=cards[1];
+    side.classList.add('profile-card-dark');
+    content.classList.add('account-main-dark');
+    side.parentNode.insertBefore(wrap, side);
+    wrap.appendChild(side); wrap.appendChild(content);
+  }
+  document.querySelectorAll('aside,.profile-card,.account-side').forEach(e=>e.classList.add('profile-card-dark'));
+  document.querySelectorAll('.account-main,.purchases,.minhas-compras').forEach(e=>e.classList.add('account-main-dark'));
+});
+</script>
+
 </body>
 </html>

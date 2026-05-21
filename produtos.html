@@ -109,4 +109,65 @@
 })();
 </script>
 
+
+<script>
+(function(){
+ const money=v=>Number(v||0).toLocaleString('pt-BR',{style:'currency',currency:'BRL'});
+ const catName=c=>({android:'Android',ios:'iOS',pc:'PC'}[(c||'').toLowerCase()]||c||'Outros');
+ const catEmoji=c=>({android:'🤖',ios:'🍎',pc:'💻'}[(c||'').toLowerCase()]||'📦');
+ const firstPlan=p=>Array.isArray(p.plans)&&p.plans.length?p.plans[0]:{price:p.price,old_price:p.old_price,discount:p.discount,name:'Principal'};
+ function card(p){
+   const pl=firstPlan(p);
+   const el=document.createElement('div');
+   el.className='lc-product-card product-card';
+   el.innerHTML=`
+     <img src="${p.image_url||'assets/logo.png'}" alt="${p.name||''}">
+     <div class="lc-product-content">
+       <span class="badge">${catName(p.category)}</span>
+       <h3 class="lc-product-title">🛒 ${p.name||'Produto'}</h3>
+       <p class="lc-desc">${p.description||''}</p>
+       <div class="lc-price-line">${pl.old_price?`<span class="lc-old">${money(pl.old_price)}</span>`:''}${pl.discount?`<span class="lc-discount">${pl.discount}</span>`:''}</div>
+       <div class="lc-price">${money(pl.price||p.price)}</div>
+       <small>À vista no PIX</small>
+       <button class="lc-buy buy-btn">Comprar</button>
+     </div>`;
+   el.querySelector('button').onclick=()=> typeof openBuyModal==='function'?openBuyModal(p):null;
+   return el;
+ }
+ window.renderProductsBeautiful=function(products){
+   products=Array.isArray(products)?products:[];
+   const root=document.getElementById('products')||document.getElementById('productGrid')||document.getElementById('productsGrid')||document.querySelector('.products-grid');
+   if(!root)return;
+   root.className='lc-page-wrap';
+   root.innerHTML='';
+   const active=(document.querySelector('.cat-btn.active')?.dataset?.cat||document.querySelector('[data-cat].active')?.dataset?.cat||'all').toLowerCase();
+   if(active==='all'){
+     const top=document.createElement('section');
+     top.innerHTML='<h2 class="lc-section-title">🔥 TOP MAIS PROCURADOS 🔥</h2><div class="lc-products-grid"></div>';
+     const grid=top.querySelector('.lc-products-grid');
+     products.forEach(p=>grid.appendChild(card(p)));
+     root.appendChild(top);
+   }else{
+     const arr=products.filter(p=>(p.category||'').toLowerCase()===active);
+     const sec=document.createElement('section');
+     sec.innerHTML=`<h2 class="lc-section-title">${catEmoji(active)} ${catName(active)}</h2><div class="lc-products-grid"></div>`;
+     const grid=sec.querySelector('.lc-products-grid');
+     arr.forEach(p=>grid.appendChild(card(p)));
+     root.appendChild(sec);
+   }
+ };
+ async function loadNice(){
+   if(!window.supabase)return;
+   const {data,error}=await supabase.from('products').select('*').eq('active',true).order('created_at',{ascending:false}).limit(1000);
+   if(error){console.error(error);return}
+   window.__LINK_PRODUCTS__=data||[];
+   renderProductsBeautiful(window.__LINK_PRODUCTS__);
+ }
+ document.addEventListener('DOMContentLoaded',()=>{
+   setTimeout(loadNice,700);
+   document.querySelectorAll('.cat-btn,[data-cat],[data-filter]').forEach(b=>b.addEventListener('click',()=>setTimeout(()=>renderProductsBeautiful(window.__LINK_PRODUCTS__||[]),80)));
+ });
+})();
+</script>
+
 </body></html>

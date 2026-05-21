@@ -31,3 +31,43 @@ body{background-color:#000!important;}
 .cart-mini-box{max-width:720px}.cart-mini-actions{display:flex;gap:12px;flex-wrap:wrap;margin-top:18px}.cart-mini-item{display:grid;grid-template-columns:70px 1fr auto;gap:14px;align-items:center;border:1px solid rgba(255,49,49,.25);background:#111a29;border-radius:14px;padding:12px;margin:10px 0}.cart-mini-item img{width:70px;height:55px;object-fit:cover;border-radius:10px}.cart-mini-item span{display:block;color:#99a3b5;margin-top:4px}
 .buy-modal-box{max-width:1100px;text-align:left}.buy-modal-top{display:grid;grid-template-columns:1fr 1fr;gap:30px;align-items:start}.buy-modal-img{width:100%;border-radius:14px;border:1px solid rgba(255,49,49,.35);max-height:330px;object-fit:cover}.discord-badge{background:#064f36;color:#00ff9d;border-radius:8px;padding:8px 12px;font-weight:900}.buy-description{line-height:1.55}.buy-plan-list{display:grid;gap:12px;margin:18px 0}.buy-plan-option{border:1px solid rgba(255,49,49,.35);background:#121b2a;border-radius:14px;padding:14px;display:flex;align-items:center;justify-content:space-between;gap:12px;cursor:pointer;transition:.2s}.buy-plan-option:hover,.buy-plan-option.active{border-color:#ff3131;box-shadow:0 0 24px rgba(255,49,49,.25);transform:translateY(-2px)}.buy-plan-left b{display:block;font-size:18px;color:white}.buy-plan-left small{color:#95a0b4}.buy-plan-discount{background:#064f36;color:#00ff9d;border-radius:8px;padding:4px 8px;font-weight:900;margin-left:8px}.buy-plan-price{text-align:right}.buy-plan-price del{display:block;color:#858b9a;font-size:13px}.buy-plan-price strong{color:#fff;font-size:24px}.buy-stock-card{margin-top:18px}
 @media(max-width:800px){.buy-modal-top{grid-template-columns:1fr}.buy-modal-box{max-height:92vh;overflow:auto}.cart-mini-item{grid-template-columns:55px 1fr}.cart-mini-item img{width:55px;height:45px}.cart-mini-item>b{grid-column:1/-1}}
+
+
+/* ===== LINKCORP VISUAL FIX FINAL ===== */
+.lc-page-wrap{max-width:1280px;margin:0 auto;padding:0 22px}
+.lc-products-grid{display:grid!important;grid-template-columns:repeat(4,minmax(240px,1fr))!important;gap:22px!important;align-items:stretch}
+.lc-product-card,.product-card{
+  background:#101827!important;border:1px solid rgba(23,73,255,.9)!important;border-radius:14px!important;
+  overflow:hidden!important;box-shadow:0 0 18px rgba(23,73,255,.18)!important;min-height:430px!important;
+  display:flex!important;flex-direction:column!important;transition:.25s!important;
+}
+.lc-product-card:hover,.product-card:hover{transform:translateY(-7px)!important;box-shadow:0 0 28px rgba(23,73,255,.38),0 0 22px rgba(255,49,49,.2)!important}
+.lc-product-card img,.product-card img{width:100%!important;height:175px!important;object-fit:cover!important;border-radius:0!important}
+.lc-product-content{padding:14px 16px 16px!important;display:flex!important;flex-direction:column!important;gap:8px!important;flex:1!important}
+.lc-product-title{font-size:17px!important;line-height:1.25!important;min-height:44px!important;color:#fff!important;text-transform:uppercase!important}
+.lc-desc{display:none!important}
+.lc-price-line{margin-top:auto!important}
+.lc-old{color:#7d8492!important;text-decoration:line-through!important;margin-right:8px!important}
+.lc-discount,.badge{background:#064f36!important;color:#00ff9d!important;border-radius:7px!important;padding:5px 8px!important;font-size:13px!important;font-weight:900!important}
+.lc-price{font-size:27px!important;font-weight:900!important;color:#fff!important;margin:5px 0!important}
+.lc-buy,.buy-btn{width:100%!important;border:0!important;border-radius:8px!important;background:#0825ff!important;color:#fff!important;font-weight:900!important;padding:13px!important;cursor:pointer!important}
+.lc-section-title,.product-section-title{margin:42px 0 18px!important;font-size:26px!important;color:#fff!important;text-transform:uppercase!important}
+.category-products-section{max-width:1280px!important;margin:42px auto!important;padding:0 22px!important}
+.category-products-section .products-grid{display:grid!important;grid-template-columns:repeat(4,minmax(240px,1fr))!important;gap:22px!important}
+#products,#productGrid,#productsGrid{max-width:1280px!important;margin:0 auto!important;padding:0 22px!important}
+@media(max-width:1100px){.lc-products-grid,.category-products-section .products-grid{grid-template-columns:repeat(3,minmax(220px,1fr))!important}}
+@media(max-width:800px){.lc-products-grid,.category-products-section .products-grid{grid-template-columns:repeat(2,minmax(180px,1fr))!important}}
+@media(max-width:520px){.lc-products-grid,.category-products-section .products-grid{grid-template-columns:1fr!important}}
+
+/* Conta/perfil dark */
+.account-shell{max-width:1120px;margin:60px auto;padding:0 22px;display:grid;grid-template-columns:280px 1fr;gap:28px}
+.profile-card-dark{background:linear-gradient(160deg,#111827,#090d15)!important;border:1px solid rgba(255,49,49,.35)!important;border-radius:22px!important;padding:28px!important;box-shadow:0 0 30px rgba(255,49,49,.12)!important}
+.profile-avatar{width:82px;height:82px;border-radius:50%;background:#e5e7eb;color:#111;display:flex;align-items:center;justify-content:center;font-size:44px;margin-bottom:18px;border:4px solid rgba(255,255,255,.15)}
+.profile-name{font-size:20px;font-weight:900;color:#fff;margin:8px 0}
+.profile-sub{color:#9ca3af;font-size:18px;margin-bottom:28px}
+.profile-menu a,.profile-menu button{display:block;width:100%;text-align:left;background:#101722;color:#fff;border:0;border-left:3px solid transparent;padding:15px 16px;margin:8px 0;border-radius:4px;font-weight:800;text-decoration:none;cursor:pointer}
+.profile-menu a.active,.profile-menu button.active{background:rgba(255,180,40,.12);border-left-color:#ffbd35}
+.account-main-dark{background:linear-gradient(145deg,#191526,#101827)!important;border:1px solid rgba(255,49,49,.35)!important;border-radius:22px!important;padding:40px!important;min-height:340px!important;box-shadow:0 0 32px rgba(255,49,49,.10)!important}
+.empty-purchases{height:230px;display:flex;flex-direction:column;align-items:center;justify-content:center;text-align:center;color:#9ca3af}
+.empty-purchases .icon{font-size:58px;color:#ff3131;margin-bottom:18px}
+@media(max-width:850px){.account-shell{grid-template-columns:1fr}}
