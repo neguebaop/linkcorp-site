@@ -16,7 +16,97 @@
 .buy-modal-box{max-width:1100px;text-align:left}.buy-modal-top{display:grid;grid-template-columns:1fr 1fr;gap:30px;align-items:start}.buy-modal-img{width:100%;border-radius:14px;border:1px solid rgba(255,49,49,.35);max-height:330px;object-fit:cover}.discord-badge{background:#064f36;color:#00ff9d;border-radius:8px;padding:8px 12px;font-weight:900}.buy-description{line-height:1.55}.buy-plan-list{display:grid;gap:12px;margin:18px 0}.buy-plan-option{border:1px solid rgba(255,49,49,.35);background:#121b2a;border-radius:14px;padding:14px;display:flex;align-items:center;justify-content:space-between;gap:12px;cursor:pointer;transition:.2s}.buy-plan-option:hover,.buy-plan-option.active{border-color:#ff3131;box-shadow:0 0 24px rgba(255,49,49,.25);transform:translateY(-2px)}.buy-plan-left b{display:block;font-size:18px;color:white}.buy-plan-left small{color:#95a0b4}.buy-plan-discount{background:#064f36;color:#00ff9d;border-radius:8px;padding:4px 8px;font-weight:900;margin-left:8px}.buy-plan-price{text-align:right}.buy-plan-price del{display:block;color:#858b9a;font-size:13px}.buy-plan-price strong{color:#fff;font-size:24px}.buy-stock-card{margin-top:18px}
 @media(max-width:800px){.buy-modal-top{grid-template-columns:1fr}.buy-modal-box{max-height:92vh;overflow:auto}}
 </style>
+
+<style>
+.product-section-title{font-size:26px;margin:42px 0 20px;color:#fff;text-transform:uppercase}
+.products-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(260px,1fr));gap:22px}
+.product-card{min-width:0}
+#products,#productGrid,#productsGrid{display:grid;grid-template-columns:repeat(auto-fill,minmax(260px,1fr));gap:22px}
+.category-products-section{margin-top:38px}
+.category-products-section[hidden]{display:none!important}
+.category-products-section .products-grid{margin-top:12px}
+.top-products-note{color:#9aa4b5;margin-bottom:10px}
+</style>
+
 </head><body><div id="nav"></div><main class="section container"><h1 class="title">NOSSOS <span class="glow">PRODUTOS</span></h1><p class="muted">Escolha a categoria e o produto perfeito</p><div class="tabs"><button class="tab active" data-cat="all">🔥 Todos</button><button class="tab" data-cat="android">🤖 Android</button><button class="tab" data-cat="ios">🍎 iOS</button><button class="tab" data-cat="pc">💻 PC</button></div><h2>🔥 TOP MAIS PROCURADOS 🔥</h2><div id="grid" class="products-grid"></div><h2 style="margin-top:55px">📦 PLANOS COMPLETOS</h2><div id="wide"></div><div class="cta"><h2>TEM DÚVIDAS?</h2><p class="muted">Nossa equipe está disponível para ajudar você</p><button class="btn" onclick="window.open(DISCORD_URL,'_blank')">ENTRAR NO DISCORD</button></div></main><div id="footer"></div><script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script><script src="config.js"></script><script src="supabase.js"></script><script src="app.js"></script><script>boot('produtos');let products=[];async function load(){products=await fetchProducts();window.LINKCORP_PRODUCTS=products;render('all')}function render(cat){document.getElementById('grid').innerHTML=products.filter(p=>cat==='all'||p.category===cat).map(productCard).join('')||'<p>Nenhum produto cadastrado nessa categoria.</p>';document.getElementById('wide').innerHTML=products.filter(p=>cat==='all'||p.category===cat).map(productWide).join('')}document.querySelectorAll('.tab').forEach(b=>b.onclick=()=>{document.querySelectorAll('.tab').forEach(x=>x.classList.remove('active'));b.classList.add('active');render(b.dataset.cat)});load();</script>
 
+
+
+<script>
+(function(){
+  const money = v => Number(v||0).toLocaleString('pt-BR',{style:'currency',currency:'BRL'});
+  const catLabel = c => ({android:'Android',ios:'iOS',pc:'PC'}[(c||'').toLowerCase()] || c || 'Outros');
+  const catEmoji = c => ({android:'🤖',ios:'🍎',pc:'💻'}[(c||'').toLowerCase()] || '📦');
+
+  function firstPlan(p){
+    return Array.isArray(p.plans) && p.plans.length ? p.plans[0] : {name:'Principal', price:p.price, old_price:p.old_price, discount:p.discount||''};
+  }
+
+  window.renderAllProductsNoLimit = function(products){
+    products = Array.isArray(products) ? products : [];
+    const root = document.getElementById('products') || document.getElementById('productGrid') || document.getElementById('productsGrid') || document.querySelector('.products-grid');
+    if(!root) return;
+    root.innerHTML = '';
+
+    const filter = (document.querySelector('.cat-btn.active')?.dataset?.cat || document.querySelector('[data-filter].active')?.dataset?.filter || 'all').toLowerCase();
+    const list = filter === 'all' ? products : products.filter(p => (p.category||'').toLowerCase() === filter);
+
+    const cats = ['android','ios','pc'];
+    const orderedCats = filter === 'all' ? cats : [filter];
+
+    orderedCats.forEach(cat=>{
+      const arr = list.filter(p => (p.category||'').toLowerCase() === cat);
+      if(!arr.length) return;
+      const sec = document.createElement('section');
+      sec.className = 'category-products-section';
+      sec.innerHTML = `<h2 class="product-section-title">${catEmoji(cat)} ${catLabel(cat)}</h2><div class="products-grid"></div>`;
+      const grid = sec.querySelector('.products-grid');
+      arr.forEach(p=>{
+        const plan = firstPlan(p);
+        const card = document.createElement('div');
+        card.className = 'product-card card hover-lift';
+        card.innerHTML = `
+          <img src="${p.image_url || 'assets/logo.png'}" alt="${p.name||''}" style="width:100%;height:190px;object-fit:cover;border-radius:14px">
+          <p><span class="badge">${catLabel(p.category)}</span></p>
+          <h3>🛒 ${p.name||'Produto'}</h3>
+          <p class="subtitle">${(p.description||'').slice(0,90)}</p>
+          <p>${plan.old_price ? `<del>${money(plan.old_price)}</del>` : ''} ${plan.discount ? `<span class="badge">${plan.discount}</span>` : ''}</p>
+          <h2 style="color:#fff">${money(plan.price || p.price)}</h2>
+          <p>À vista no PIX</p>
+          <button class="btn buy-btn" style="width:100%">Comprar</button>
+        `;
+        card.querySelector('.buy-btn').onclick = ()=> {
+          if(typeof openBuyModal === 'function') openBuyModal(p);
+          else if(typeof addCart === 'function') addCart(p);
+        };
+        grid.appendChild(card);
+      });
+      root.appendChild(sec);
+    });
+
+    if(!root.children.length){
+      root.innerHTML = '<p class="subtitle">Nenhum produto nessa categoria.</p>';
+    }
+  };
+
+  // Recarrega produtos sem limite direto do Supabase depois que a página abrir.
+  async function reloadNoLimit(){
+    try{
+      if(!window.supabase) return;
+      const {data,error}=await supabase.from('products').select('*').eq('active',true).order('created_at',{ascending:false}).limit(1000);
+      if(error) return console.error(error);
+      window.__LINK_PRODUCTS__ = data || [];
+      renderAllProductsNoLimit(window.__LINK_PRODUCTS__);
+    }catch(e){console.error(e)}
+  }
+
+  document.addEventListener('DOMContentLoaded', ()=>{
+    setTimeout(reloadNoLimit, 600);
+    document.querySelectorAll('.cat-btn,[data-cat],[data-filter]').forEach(btn=>{
+      btn.addEventListener('click',()=>setTimeout(()=>renderAllProductsNoLimit(window.__LINK_PRODUCTS__||[]),50));
+    });
+  });
+})();
+</script>
 
 </body></html>
