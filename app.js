@@ -1,6 +1,20 @@
-function nav(active='inicio'){return `<header class="topbar"><div class="nav"><a class="brand brand-img-only" href="index.html"><img class="brand-img" src="assets/logo.png" alt="Link Corp"></a><nav class="menu"><a class="${active==='inicio'?'active':''}" href="index.html">Início</a><a class="${active==='produtos'?'active':''}" href="produtos.html">Produtos</a><a class="${active==='feedbacks'?'active':''}" href="feedbacks.html">Feedbacks</a><a class="${active==='login'?'active':''}" href="login.html">Login</a><button onclick="openCart()" class="cart-btn">🛒</button></nav></div></header>`}
+function nav(active='inicio'){return `<header class="topbar"><div class="nav"><a class="brand brand-img-only" href="index.html"><img class="brand-img" src="assets/logo.png" alt="Link Corp"></a><nav class="menu"><a class="${active==='inicio'?'active':''}" href="index.html">Início</a><a class="${active==='produtos'?'active':''}" href="produtos.html">Produtos</a><a class="${active==='feedbacks'?'active':''}" href="feedbacks.html">Feedbacks</a><span id="userNavArea"><a class="${active==='login'?'active':''}" href="login.html">Login</a></span><button onclick="openCart()" class="cart-btn">🛒</button></nav></div></header>`}
 function footer(){return `<footer class="footer"><div class="container footer-grid"><div><div class="brand brand-img-only"><img class="brand-img footer-logo-img" src="assets/logo.png" alt="Link Corp"></div><p>Os melhores painéis e produtos digitais. Atendimento manual via Pix e WhatsApp.</p><div class="secure"><b>🛡️ Segurança</b><span>Google Site Seguro</span><span>ReclameAQUI</span></div></div><div><h3>LINKS RÁPIDOS</h3><p><a href="produtos.html">Produtos</a></p><p><a href="feedbacks.html">Feedbacks</a></p><p><a href="carrinho.html">Carrinho</a></p></div><div><h3>SUPORTE</h3><p>💬 Suporte 24/7 via WhatsApp</p><p>✉️ ${cfg.SUPPORT_EMAIL}</p><p>🛡️ Pagamento Seguro</p></div></div><div class="container"><p>© 2026 Link Corp. Todos os direitos reservados.</p></div></footer><div class="online"><span id="onlineNum">150</span> ONLINE</div><button class="chat" onclick="window.open('https://wa.me/${cfg.WHATSAPP_NUMBER}','_blank')">💬</button><div id="toast" class="toast"></div><div id="cartModal" class="modal"><div class="modal-box"><button class="close" onclick="closeCart()">×</button><h2>Carrinho</h2><div id="cartItems"></div><a class="btn" href="carrinho.html">Finalizar Pedido</a></div></div>`}
-function boot(active){document.body.classList.add('grid-bg');document.getElementById('nav').innerHTML=nav(active);document.getElementById('footer').innerHTML=footer();particles();setInterval(()=>{let n=145+Math.floor(Math.random()*20);let el=document.getElementById('onlineNum');if(el)el.textContent=n},2500)}
+function boot(active){document.body.classList.add('grid-bg');document.getElementById('nav').innerHTML=nav(active);document.getElementById('footer').innerHTML=footer();particles();updateUserNav(active);setInterval(()=>{let n=145+Math.floor(Math.random()*20);let el=document.getElementById('onlineNum');if(el)el.textContent=n},2500)}
+async function updateUserNav(active){
+  const area=document.getElementById('userNavArea');
+  if(!area) return;
+  try{
+    const session = await getSession();
+    if(session && session.user){
+      const email=session.user.email||'Conta';
+      const name=email.split('@')[0];
+      area.innerHTML=`<a class="${active==='conta'?'active':''}" href="conta.html"><span class="user-pill"><span class="avatar-mini">👤</span>${name} ✅</span></a>`;
+    } else {
+      area.innerHTML=`<a class="${active==='login'?'active':''}" href="login.html">Login</a>`;
+    }
+  }catch(e){ console.error(e); }
+}
 function toast(msg){let t=document.getElementById('toast');t.textContent=msg;t.classList.add('show');setTimeout(()=>t.classList.remove('show'),3000)}
 function particles(){for(let i=0;i<36;i++){let p=document.createElement('span');p.className='particle';p.style.left=Math.random()*100+'vw';p.style.animationDelay=Math.random()*9+'s';p.style.animationDuration=(7+Math.random()*8)+'s';document.body.appendChild(p)}}
 async function fetchProducts(){if(!isConfigured())return demoProducts();const {data,error}=await supabase.from('products').select('*').eq('active',true).order('created_at',{ascending:false});if(error){console.error(error);return []}return data||[]}

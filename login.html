@@ -12,29 +12,6 @@
     .login-alert{position:fixed;right:18px;bottom:18px;background:#141b28;border:1px solid #ff3131;color:#fff;padding:14px 18px;border-radius:12px;box-shadow:0 0 25px rgba(255,49,49,.35);z-index:9999;display:none;max-width:360px}
     .login-alert.show{display:block}
   </style>
-  <script>
-    function showRegister(){
-      var loginBox=document.getElementById('loginBox');
-      var registerBox=document.getElementById('registerBox');
-      if(loginBox) loginBox.style.display='none';
-      if(registerBox) registerBox.style.display='block';
-      return false;
-    }
-    function showLogin(){
-      var loginBox=document.getElementById('loginBox');
-      var registerBox=document.getElementById('registerBox');
-      if(registerBox) registerBox.style.display='none';
-      if(loginBox) loginBox.style.display='block';
-      return false;
-    }
-    function loginMsg(msg){
-      var t=document.getElementById('loginAlert') || document.getElementById('toast');
-      if(!t){ alert(msg); return; }
-      t.textContent=msg;
-      t.classList.add('show');
-      setTimeout(function(){t.classList.remove('show')},3500);
-    }
-  </script>
 </head>
 <body>
 <div id="nav"></div>
@@ -57,10 +34,7 @@
         <input class="input" name="password" type="password" placeholder="Senha" required>
         <button class="btn" type="submit">ENTRAR</button>
       </form>
-      <p style="text-align:center">
-        Não tem conta?
-        <a class="login-switch" href="javascript:void(0)" onclick="return showRegister()">Criar conta</a>
-      </p>
+      <p style="text-align:center">Não tem conta? <a class="login-switch" href="javascript:void(0)" onclick="return showRegister()">Criar conta</a></p>
       <hr>
       <p style="text-align:center"><a href="admin.html">Área admin</a></p>
     </div>
@@ -72,10 +46,7 @@
         <input class="input" name="password" type="password" placeholder="Senha mínimo 6 caracteres" minlength="6" required>
         <button class="btn" type="submit">CRIAR CONTA</button>
       </form>
-      <p style="text-align:center">
-        Já tem conta?
-        <a class="login-switch" href="javascript:void(0)" onclick="return showLogin()">Entrar</a>
-      </p>
+      <p style="text-align:center">Já tem conta? <a class="login-switch" href="javascript:void(0)" onclick="return showLogin()">Entrar</a></p>
     </div>
   </div>
 </main>
@@ -88,39 +59,35 @@
 <script src="supabase.js"></script>
 <script src="app.js"></script>
 <script>
-  try { boot('login'); } catch(e) { console.error(e); }
+function showRegister(){document.getElementById('loginBox').style.display='none';document.getElementById('registerBox').style.display='block';return false;}
+function showLogin(){document.getElementById('registerBox').style.display='none';document.getElementById('loginBox').style.display='block';return false;}
+function loginMsg(msg){let t=document.getElementById('loginAlert')||document.getElementById('toast'); if(!t){alert(msg);return;} t.textContent=msg;t.classList.add('show');setTimeout(()=>t.classList.remove('show'),3500);}
 
-  var showRegisterBtn=document.getElementById('showRegisterBtn');
-  var showLoginBtn=document.getElementById('showLoginBtn');
-  if(showRegisterBtn) showRegisterBtn.onclick=showRegister;
-  if(showLoginBtn) showLoginBtn.onclick=showLogin;
+boot('login');
+(async()=>{ const session=await getSession(); if(session && session.user){ location.href='conta.html'; } })();
 
-  document.getElementById('loginForm').addEventListener('submit', async function(e){
-    e.preventDefault();
-    if(typeof isConfigured !== 'function' || !isConfigured()) return loginMsg('Configure SUPABASE_URL e SUPABASE_ANON_KEY no config.js primeiro.');
-    var fd = new FormData(e.target);
-    var result = await supabase.auth.signInWithPassword({
-      email: fd.get('email'),
-      password: fd.get('password')
-    });
-    if(result.error) return loginMsg(result.error.message);
-    loginMsg('Login feito!');
-    setTimeout(function(){ location.href = 'produtos.html'; }, 700);
-  });
+document.getElementById('loginForm').addEventListener('submit', async function(e){
+  e.preventDefault();
+  if(!isConfigured()) return loginMsg('Configure SUPABASE_URL e SUPABASE_ANON_KEY no config.js primeiro.');
+  const fd=new FormData(e.target);
+  const result=await supabase.auth.signInWithPassword({email:fd.get('email'),password:fd.get('password')});
+  if(result.error) return loginMsg(result.error.message);
+  localStorage.setItem('linkcorp_user_email', fd.get('email'));
+  loginMsg('Login feito!');
+  setTimeout(()=>location.href='conta.html',700);
+});
 
-  document.getElementById('registerForm').addEventListener('submit', async function(e){
-    e.preventDefault();
-    if(typeof isConfigured !== 'function' || !isConfigured()) return loginMsg('Configure SUPABASE_URL e SUPABASE_ANON_KEY no config.js primeiro.');
-    var fd = new FormData(e.target);
-    var result = await supabase.auth.signUp({
-      email: fd.get('email'),
-      password: fd.get('password')
-    });
-    if(result.error) return loginMsg(result.error.message);
-    loginMsg('Conta criada! Agora tente entrar. Se pedir confirmação, confirme no email.');
-    showLogin();
-    document.querySelector('#loginForm [name="email"]').value = fd.get('email');
-  });
+document.getElementById('registerForm').addEventListener('submit', async function(e){
+  e.preventDefault();
+  if(!isConfigured()) return loginMsg('Configure SUPABASE_URL e SUPABASE_ANON_KEY no config.js primeiro.');
+  const fd=new FormData(e.target);
+  const result=await supabase.auth.signUp({email:fd.get('email'),password:fd.get('password')});
+  if(result.error) return loginMsg(result.error.message);
+  localStorage.setItem('linkcorp_user_email', fd.get('email'));
+  loginMsg('Conta criada! Agora entre com seu email e senha.');
+  showLogin();
+  document.querySelector('#loginForm [name=email]').value=fd.get('email');
+});
 </script>
 </body>
 </html>

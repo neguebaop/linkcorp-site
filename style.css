@@ -25,3 +25,4 @@
 .footer-logo-img{width:160px!important;}
 body{background-color:#000!important;}
 @media(max-width:700px){.brand-img{width:135px!important}.hero-logo{width:190px!important}}
+.user-pill{display:inline-flex;align-items:center;gap:7px}.avatar-mini{background:#fff;color:#111;border-radius:50%;width:24px;height:24px;display:inline-flex;align-items:center;justify-content:center;font-size:14px}
