@@ -1,1 +1,122 @@
-<!doctype html><html lang="pt-BR"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>Produtos - Link Corp</title><link rel="stylesheet" href="style.css"></head><body><div id="nav"></div><main class="section container"><h1 class="title">NOSSOS <span class="glow">PRODUTOS</span></h1><p class="muted">Escolha a categoria e o produto perfeito</p><div class="tabs"><button class="tab active" data-cat="all">🔥 Todos</button><button class="tab" data-cat="android">🤖 Android</button><button class="tab" data-cat="ios">🍎 iOS</button><button class="tab" data-cat="pc">💻 PC</button></div><h2>🔥 TOP MAIS PROCURADOS 🔥</h2><div id="grid" class="products-grid"></div><h2 style="margin-top:55px">📦 PLANOS COMPLETOS</h2><div id="wide"></div><div class="cta"><h2>TEM DÚVIDAS?</h2><p class="muted">Nossa equipe está disponível para ajudar você</p><button class="btn" onclick="window.open(cfg.DISCORD_INVITE||'https://discord.gg/TutAbaF7q','_blank')">FALAR COM SUPORTE NO DISCORD</button></div></main><div id="footer"></div><script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script><script src="config.js"></script><script src="supabase.js"></script><script src="app.js"></script><script>boot('produtos');let products=[];async function load(){products=await fetchProducts();window.products=products;render('all')}function render(cat){document.getElementById('grid').innerHTML=products.filter(p=>cat==='all'||p.category===cat).map(productCard).join('')||'<p>Nenhum produto cadastrado nessa categoria.</p>';document.getElementById('wide').innerHTML=products.filter(p=>cat==='all'||p.category===cat).map(productWide).join('')}document.querySelectorAll('.tab').forEach(b=>b.onclick=()=>{document.querySelectorAll('.tab').forEach(x=>x.classList.remove('active'));b.classList.add('active');render(b.dataset.cat)});load();</script></body></html>
+<!doctype html><html lang="pt-BR"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>Produtos - Link Corp</title><link rel="stylesheet" href="style.css">
+<style>
+.buy-plan-list{display:grid;gap:12px;margin:18px 0}
+.buy-plan-option{border:1px solid rgba(255,49,49,.35);background:#121b2a;border-radius:14px;padding:14px;display:flex;align-items:center;justify-content:space-between;gap:12px;cursor:pointer;transition:.2s}
+.buy-plan-option:hover,.buy-plan-option.active{border-color:#ff3131;box-shadow:0 0 24px rgba(255,49,49,.25);transform:translateY(-2px)}
+.buy-plan-left b{display:block;font-size:18px;color:white}
+.buy-plan-left small{color:#95a0b4}
+.buy-plan-discount{background:#064f36;color:#00ff9d;border-radius:8px;padding:4px 8px;font-weight:900;margin-left:8px}
+.buy-plan-price{text-align:right}
+.buy-plan-price del{display:block;color:#858b9a;font-size:13px}
+.buy-plan-price strong{color:#fff;font-size:24px}
+</style>
+
+</head><body><div id="nav"></div><main class="section container"><h1 class="title">NOSSOS <span class="glow">PRODUTOS</span></h1><p class="muted">Escolha a categoria e o produto perfeito</p><div class="tabs"><button class="tab active" data-cat="all">🔥 Todos</button><button class="tab" data-cat="android">🤖 Android</button><button class="tab" data-cat="ios">🍎 iOS</button><button class="tab" data-cat="pc">💻 PC</button></div><h2>🔥 TOP MAIS PROCURADOS 🔥</h2><div id="grid" class="products-grid"></div><h2 style="margin-top:55px">📦 PLANOS COMPLETOS</h2><div id="wide"></div><div class="cta"><h2>TEM DÚVIDAS?</h2><p class="muted">Nossa equipe está disponível para ajudar você</p><button class="btn" onclick="window.open('https://wa.me/'+cfg.WHATSAPP_NUMBER,'_blank')">FALAR COM SUPORTE</button></div></main><div id="footer"></div><script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script><script src="config.js"></script><script src="supabase.js"></script><script src="app.js"></script><script>boot('produtos');let products=[];async function load(){products=await fetchProducts();render('all')}function render(cat){document.getElementById('grid').innerHTML=products.filter(p=>cat==='all'||p.category===cat).map(productCard).join('')||'<p>Nenhum produto cadastrado nessa categoria.</p>';document.getElementById('wide').innerHTML=products.filter(p=>cat==='all'||p.category===cat).map(productWide).join('')}document.querySelectorAll('.tab').forEach(b=>b.onclick=()=>{document.querySelectorAll('.tab').forEach(x=>x.classList.remove('active'));b.classList.add('active');render(b.dataset.cat)});load();</script>
+<script>
+(function(){
+  window.selectedBuyPlan = null;
+
+  function money(v){
+    const n = Number(v || 0);
+    return n.toLocaleString('pt-BR',{style:'currency',currency:'BRL'});
+  }
+
+  window.openBuyModal = function(product, planIndex){
+    const plans = Array.isArray(product.plans) && product.plans.length ? product.plans : [{
+      name: product.name || 'Plano',
+      days: '',
+      old_price: product.old_price || 0,
+      price: product.price || 0,
+      discount: product.discount || ''
+    }];
+
+    let currentIndex = Number.isInteger(planIndex) ? planIndex : 0;
+    window.selectedBuyPlan = plans[currentIndex];
+
+    const modal = document.getElementById('buyModal') || document.createElement('div');
+    modal.id = 'buyModal';
+    modal.className = 'modal show';
+    modal.innerHTML = `
+      <div class="modal-box" style="max-width:1100px;text-align:left">
+        <button class="close" onclick="document.getElementById('buyModal').classList.remove('show')">×</button>
+        <div style="display:grid;grid-template-columns:1fr 1fr;gap:30px;align-items:start">
+          <div>
+            <img src="${product.image_url || 'assets/logo.png'}" style="width:100%;border-radius:14px;border:1px solid rgba(255,49,49,.35);max-height:330px;object-fit:cover">
+          </div>
+          <div>
+            <p class="subtitle">Início › Produtos › ${product.category || ''}</p>
+            <h2>${product.name || 'Produto'}</h2>
+            <div id="buyPriceBox"></div>
+            <p><span style="background:#064f36;color:#00ff9d;border-radius:8px;padding:8px 12px;font-weight:900">⚡ Entrega manual via Discord</span></p>
+            <p>${product.description || ''}</p>
+          </div>
+        </div>
+
+        <hr style="margin:24px 0">
+
+        <h3>Escolha seu plano</h3>
+        <div class="buy-plan-list" id="buyPlanList">
+          ${plans.map((p,i)=>`
+            <div class="buy-plan-option ${i===currentIndex?'active':''}" data-plan-index="${i}">
+              <div class="buy-plan-left">
+                <b>${p.name || 'Plano'} ${p.discount ? `<span class="buy-plan-discount">${p.discount}</span>` : ''}</b>
+                <small>${p.days || ''}</small>
+              </div>
+              <div class="buy-plan-price">
+                ${p.old_price ? `<del>${money(p.old_price)}</del>` : ''}
+                <strong>${money(p.price)}</strong>
+              </div>
+            </div>
+          `).join('')}
+        </div>
+
+        <div class="card" style="margin-top:18px">
+          <h3>Estoque disponível</h3>
+          <div id="buyStockPrice" style="font-size:28px;margin:10px 0"></div>
+          <p id="buyStockDays"></p>
+          <button class="btn" id="buyNowBtn" style="width:100%">Comprar agora</button>
+          <button class="btn ghost" onclick="document.getElementById('buyModal').classList.remove('show')" style="width:100%;margin-top:10px">Continuar vendo produtos</button>
+        </div>
+      </div>
+    `;
+    if(!document.getElementById('buyModal')) document.body.appendChild(modal);
+
+    function renderSelected(){
+      const p = plans[currentIndex];
+      window.selectedBuyPlan = p;
+      document.querySelectorAll('#buyPlanList .buy-plan-option').forEach(el=>el.classList.toggle('active', Number(el.dataset.planIndex)===currentIndex));
+      const priceBox = document.getElementById('buyPriceBox');
+      if(priceBox) priceBox.innerHTML = `${p.old_price ? `<del>${money(p.old_price)}</del>` : ''} ${p.discount ? `<b style="color:#00ff9d">${p.discount}</b>` : ''} <strong style="font-size:30px;margin-left:10px">${money(p.price)}</strong>`;
+      const stockPrice = document.getElementById('buyStockPrice');
+      if(stockPrice) stockPrice.textContent = money(p.price);
+      const stockDays = document.getElementById('buyStockDays');
+      if(stockDays) stockDays.textContent = `${p.days || p.name || 'Plano'} disponível`;
+    }
+
+    document.querySelectorAll('#buyPlanList .buy-plan-option').forEach(el=>{
+      el.onclick = ()=>{ currentIndex = Number(el.dataset.planIndex); renderSelected(); };
+    });
+
+    document.getElementById('buyNowBtn').onclick = function(){
+      const p = plans[currentIndex];
+      const cart = JSON.parse(localStorage.getItem('linkcorp_cart') || '[]');
+      cart.push({
+        product_id: product.id,
+        name: product.name,
+        image_url: product.image_url,
+        category: product.category,
+        plan: p.name || 'Plano',
+        days: p.days || '',
+        price: Number(p.price || product.price || 0),
+        qty: 1
+      });
+      localStorage.setItem('linkcorp_cart', JSON.stringify(cart));
+      location.href = 'carrinho.html';
+    };
+
+    renderSelected();
+  };
+})();
+</script>
+
+</body></html>
