@@ -6,6 +6,7 @@ window.LINKCORP_CONFIG = {
 
   PIX_KEY: "d8880ef2-2ad1-4c55-bcbd-8d9b643f65da",
   WHATSAPP_NUMBER: "5538999393010",
+  DISCORD_INVITE: "https://discord.gg/TutAbaF7q",
   SUPPORT_EMAIL: "vendasff46@gmail.com",
   ADMIN_EMAILS: ["vendasff46@gmail.com"]
 };

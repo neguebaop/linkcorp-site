@@ -26,3 +26,10 @@
 body{background-color:#000!important;}
 @media(max-width:700px){.brand-img{width:135px!important}.hero-logo{width:190px!important}}
 .user-pill{display:inline-flex;align-items:center;gap:7px}.avatar-mini{background:#fff;color:#111;border-radius:50%;width:24px;height:24px;display:inline-flex;align-items:center;justify-content:center;font-size:14px}
+
+/* MODAL DE COMPRA ESTILO EREMBY + DISCORD */
+.product-buy-modal{max-width:980px!important;padding:34px!important}
+.product-detail-top{display:grid;grid-template-columns:48% 1fr;gap:26px;align-items:start}
+.product-detail-top img{width:100%;height:270px;object-fit:cover;border-radius:14px;border:1px solid rgba(255,49,49,.45)}
+.crumb{color:#8f98a8;font-size:15px;margin-top:0}.detail-price{font-size:22px;margin:14px 0}.detail-price b{font-size:32px;color:#fff;margin-left:10px}.green{color:#12e68b;font-weight:800}.checkout-box{background:#0e141f;border:1px solid #283548;border-radius:16px;padding:22px;margin-top:20px}.detail-total{font-size:34px;color:#fff;margin:10px 0}.discord-chat{display:flex;align-items:center;justify-content:center}.discord-chat:before{content:'🎮';font-size:28px}.discord-chat{font-size:0!important;background:#5865F2!important}.discord-chat:hover{box-shadow:0 0 28px rgba(88,101,242,.75)!important}
+@media(max-width:800px){.product-detail-top{grid-template-columns:1fr}.product-detail-top img{height:220px}.product-buy-modal{max-height:90vh;overflow:auto}}
